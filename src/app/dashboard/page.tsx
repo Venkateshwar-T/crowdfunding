@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy, Loader2 } from "lucide-react";
+import { Copy, Loader2, Rocket } from "lucide-react";
 import { ProgressBar } from "@/components/shared/ProgressBar";
 import { FileUpload } from "@/components/shared/FileUpload";
 
@@ -18,6 +18,7 @@ import { useAccount, useReadContract, useReadContracts } from 'wagmi';
 import { formatEther, type Abi } from 'viem';
 import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
 import CampaignABI from '@/lib/abi/Campaign.json';
+import { useToast } from '@/hooks/use-toast';
 
 // --- CONFIGURATION ---
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
@@ -29,8 +30,11 @@ const MOCK_TOKENS: Record<string, string> = {
 
 export default function DashboardPage() {
     const { address: userAddress, isConnected } = useAccount();
+    const { toast } = useToast();
     const [myCampaigns, setMyCampaigns] = useState<any[]>([]);
     const [myContributions, setMyContributions] = useState<any[]>([]);
+    const [smartAccountAddress, setSmartAccountAddress] = useState<string | null>(null);
+
     const searchParams = useSearchParams();
     const defaultTab = searchParams.get('tab') || 'my-campaigns';
 
@@ -94,6 +98,23 @@ export default function DashboardPage() {
             setMyContributions(backed);
         }
     }, [results, userAddress, campaignAddresses]);
+
+    const handleDeploySmartAccount = () => {
+        // This is a mock deployment. In a real scenario, this would
+        // call a factory contract to deploy a smart account for the user.
+        toast({
+            title: "Simulating Deployment",
+            description: "Deploying your smart account to the Flare Testnet..."
+        });
+        setTimeout(() => {
+            const mockAddress = `0x${[...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`;
+            setSmartAccountAddress(mockAddress);
+            toast({
+                title: "Smart Account Deployed!",
+                description: `Your new smart account address is: ${mockAddress.slice(0,10)}...`
+            });
+        }, 3000);
+    }
 
     if (!isConnected) {
         return (
@@ -214,32 +235,41 @@ export default function DashboardPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Smart Account Manager</CardTitle>
-                        <CardDescription>Your connected wallet is your controller.</CardDescription>
+                        <CardDescription>Deploy and manage your personal smart account on the Flare Network.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div>
-                            <Label>Connected Wallet Address</Label>
+                            <Label>EOA Controller Address</Label>
                             <div className="flex items-center gap-2 mt-1">
                                 <Input value={userAddress || ''} readOnly />
-                                <Button variant="outline" size="icon"><Copy className="h-4 w-4" /></Button>
+                                <Button variant="outline" size="icon" onClick={() => navigator.clipboard.writeText(userAddress || '')}><Copy className="h-4 w-4" /></Button>
                             </div>
+                            <p className="text-xs text-muted-foreground mt-1">This is your standard wallet that controls the smart account.</p>
                         </div>
-                        <div className="p-4 bg-muted rounded-lg">
-                            <h4 className="font-semibold mb-2 flex items-center gap-2">
-                                Assets on Flare
-                            </h4>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>C2FLR (Gas):</div>
-                                <div className="font-mono">Active</div>
-                                <div>F-BTC (Mock):</div>
-                                <div className="font-mono">{MOCK_TOKENS['F-BTC']?.slice(0,6)}...</div>
+                        
+                        {smartAccountAddress ? (
+                            <div>
+                                <Label>Deployed Smart Account Address</Label>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <Input value={smartAccountAddress} readOnly />
+                                    <Button variant="outline" size="icon" onClick={() => navigator.clipboard.writeText(smartAccountAddress)}><Copy className="h-4 w-4" /></Button>
+                                </div>
+                                 <p className="text-xs text-green-500 mt-1">Your smart account is active on the network.</p>
                             </div>
-                        </div>
+                        ) : (
+                             <div className="p-4 bg-muted/50 rounded-lg text-center">
+                                <h4 className="font-semibold mb-2">No Smart Account Found</h4>
+                                <p className="text-sm text-muted-foreground mb-4">Deploy a new smart account to enable advanced features like gas-less transactions and social recovery.</p>
+                                <Button onClick={handleDeploySmartAccount}>
+                                    <Rocket className="mr-2 h-4 w-4" />
+                                    Deploy Smart Account
+                                </Button>
+                            </div>
+                        )}
+                       
                     </CardContent>
                 </Card>
             </TabsContent>
         </Tabs>
     );
 }
-
-    
