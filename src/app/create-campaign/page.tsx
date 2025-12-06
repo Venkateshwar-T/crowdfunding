@@ -14,6 +14,7 @@ import { MilestoneCard } from '@/components/shared/MilestoneCard';
 import { PlusCircle } from 'lucide-react';
 import { FAssetIcon } from '@/components/shared/FAssetIcon';
 import { mockCampaigns } from '@/lib/mock-data';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const milestoneSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
