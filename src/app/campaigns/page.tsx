@@ -24,16 +24,14 @@ const categories = ['All', 'Tech', 'Art', 'Music', 'DeFi', 'Gaming'];
 const statuses = ['All', 'active', 'successful', 'expired'];
 
 export default function ExploreCampaignsPage() {
-  // 1. Fetch list of Campaign Addresses from Factory
   const { data: campaignAddresses } = useReadContract({
     address: FACTORY_ADDRESS as `0x${string}`,
     abi: FactoryABI,
     functionName: 'getDeployedCampaigns',
   });
 
-  // 2. Prepare hooks to read data from EACH campaign found
   const campaignsContractConfig = {
-    abi: CampaignABI as Abi, // Type fix
+    abi: CampaignABI as Abi,
   } as const;
 
   const addresses = (campaignAddresses as string[]) || [];
@@ -48,37 +46,33 @@ export default function ExploreCampaignsPage() {
     { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'creator' },
   ]).flat();
 
-  // 3. Fetch all details in one go
   const { data: campaignData, isLoading: isLoadingBlockchain } = useReadContracts({
     contracts: contracts,
     query: { enabled: addresses.length > 0 }
   });
 
-  // 4. Transform Blockchain Data into App Format
   const [realCampaigns, setRealCampaigns] = useState<any[]>([]);
 
   useEffect(() => {
     if (campaignData && addresses.length > 0) {
       const campaigns = [];
       
-      // Each campaign has 7 calls, so we step by 7
       for (let i = 0; i < addresses.length; i++) {
         const base = i * 7;
         
-        // Check if data exists before accessing to avoid errors
         if (campaignData[base]?.status === 'success') {
             const currentFundingWei = campaignData[base + 3]?.result as bigint || BigInt(0);
             const goalWei = campaignData[base + 4]?.result as bigint || BigInt(0);
             const deadlineSeconds = Number(campaignData[base + 5]?.result || 0);
 
             campaigns.push({
-                id: addresses[i], // Use address as ID
+                id: addresses[i],
                 title: campaignData[base].result as string || "Untitled",
-                description: "Blockchain Campaign", // Description not fetched in list view to save data
+                description: "Blockchain Campaign",
                 imageUrl: campaignData[base + 1].result as string || "https://placehold.co/600x400",
                 imageHint: "blockchain project",
                 category: campaignData[base + 2].result as string || "Tech",
-                currentFunding: Number(formatEther(currentFundingWei)), // Convert Wei to USD/Ether
+                currentFunding: Number(formatEther(currentFundingWei)),
                 fundingGoal: Number(formatEther(goalWei)),
                 deadline: new Date(deadlineSeconds * 1000).toISOString(),
                 creator: { 
@@ -98,10 +92,8 @@ export default function ExploreCampaignsPage() {
     }
   }, [campaignData, addresses]);
 
-  // Merge Real + Mock for Demo
   const allCampaigns = [...realCampaigns, ...mockCampaigns];
 
-  // --- FILTERS STATE ---
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('All');
   const [status, setStatus] = useState('All');
@@ -234,3 +226,5 @@ export default function ExploreCampaignsPage() {
     </div>
   );
 }
+
+    

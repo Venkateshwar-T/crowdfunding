@@ -18,7 +18,7 @@ import { formatEther, type Abi } from 'viem';
 import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
 import CampaignABI from '@/lib/abi/Campaign.json';
 
-// --- CONFIGURATION (PASTE YOUR ADDRESSES HERE) ---
+// --- CONFIGURATION ---
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
 const MOCK_TOKENS: Record<string, string> = {
     'F-BTC': "0x76E4b5DDD42BD84161f7f298D35723FbC576e861",
@@ -30,27 +30,22 @@ export default function DashboardPage() {
     const [myCampaigns, setMyCampaigns] = useState<any[]>([]);
     const [myContributions, setMyContributions] = useState<any[]>([]);
 
-    // 1. Get list of all campaigns
-    const { data: campaignAddresses } = useReadContract({
+    const { data: campaignAddressesResult } = useReadContract({
         address: FACTORY_ADDRESS as `0x${string}`,
         abi: FactoryABI as Abi,
         functionName: 'getDeployedCampaigns',
     });
+    
+    const campaignAddresses = (campaignAddressesResult as string[]) || [];
 
-    // 2. Prepare bulk reads
     const campaignConfig = { abi: CampaignABI as Abi } as const;
-    const allAddresses = (campaignAddresses as string[]) || [];
 
-    // We need to fetch Creator and Title for "My Campaigns"
-    // And check Contributions for "My Contributions"
-    const contracts = allAddresses.map(addr => [
+    const contracts = campaignAddresses.map(addr => [
         { ...campaignConfig, address: addr as `0x${string}`, functionName: 'title' },
         { ...campaignConfig, address: addr as `0x${string}`, functionName: 'creator' },
         { ...campaignConfig, address: addr as `0x${string}`, functionName: 'fundingGoalUSD' },
         { ...campaignConfig, address: addr as `0x${string}`, functionName: 'currentFundingUSD' },
-        // Check contribution balance for F-BTC
         { ...campaignConfig, address: addr as `0x${string}`, functionName: 'contributions', args: [userAddress, MOCK_TOKENS['F-BTC']] },
-        // Check contribution balance for F-XRP
         { ...campaignConfig, address: addr as `0x${string}`, functionName: 'contributions', args: [userAddress, MOCK_TOKENS['F-XRP']] },
     ]).flat();
 
@@ -59,18 +54,15 @@ export default function DashboardPage() {
         query: { enabled: !!campaignAddresses && !!userAddress }
     });
 
-    // 3. Process Data
     useEffect(() => {
         if (results && userAddress) {
             const created = [];
             const backed = [];
 
-            // Results come in chunks of 6 per campaign
-            for (let i = 0; i < allAddresses.length; i++) {
+            for (let i = 0; i < campaignAddresses.length; i++) {
                 const base = i * 6;
-                const addr = allAddresses[i];
+                const addr = campaignAddresses[i];
                 
-                // Safe extraction
                 const title = results[base]?.result as string;
                 const creator = results[base + 1]?.result as string;
                 const goal = results[base + 2]?.result ? formatEther(results[base + 2].result as bigint) : '0';
@@ -78,12 +70,10 @@ export default function DashboardPage() {
                 const btcContrib = results[base + 4]?.result as bigint || 0n;
                 const xrpContrib = results[base + 5]?.result as bigint || 0n;
 
-                // "My Campaigns" Logic
                 if (creator === userAddress) {
                     created.push({ id: addr, title, goal, current, status: 'active' });
                 }
 
-                // "My Contributions" Logic
                 if (btcContrib > 0n) {
                     backed.push({ id: addr, title, amount: formatEther(btcContrib), asset: 'F-BTC', date: new Date().toISOString() });
                 }
@@ -94,7 +84,7 @@ export default function DashboardPage() {
             setMyCampaigns(created);
             setMyContributions(backed);
         }
-    }, [results, userAddress, allAddresses]);
+    }, [results, userAddress, campaignAddresses]);
 
     if (!isConnected) {
         return (
@@ -114,7 +104,6 @@ export default function DashboardPage() {
                 <TabsTrigger value="smart-account">Smart Account</TabsTrigger>
             </TabsList>
 
-            {/* --- MY CAMPAIGNS TAB --- */}
             <TabsContent value="my-campaigns" className="mt-6">
                 <Card>
                     <CardHeader>
@@ -153,7 +142,6 @@ export default function DashboardPage() {
                 </Card>
             </TabsContent>
 
-            {/* --- MY CONTRIBUTIONS TAB --- */}
             <TabsContent value="my-contributions" className="mt-6">
                 <Card>
                     <CardHeader>
@@ -185,7 +173,6 @@ export default function DashboardPage() {
                 </Card>
             </TabsContent>
 
-            {/* --- IDENTITY TAB (Mock for Hackathon) --- */}
             <TabsContent value="identity" className="mt-6">
                 <Card>
                     <CardHeader>
@@ -214,7 +201,6 @@ export default function DashboardPage() {
                 </Card>
             </TabsContent>
             
-            {/* --- SMART ACCOUNT TAB --- */}
             <TabsContent value="smart-account" className="mt-6">
                 <Card>
                     <CardHeader>
@@ -246,3 +232,5 @@ export default function DashboardPage() {
         </Tabs>
     );
 }
+
+    

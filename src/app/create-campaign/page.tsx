@@ -28,12 +28,11 @@ import type { Abi } from 'viem';
 // --- CONFIGURATION CONSTANTS (REPLACE THESE!) ---
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
 
-// Map the symbols in your dropdown to the Mock Token addresses you deployed in Remix
 const MOCK_TOKENS: Record<string, string> = {
     'F-BTC': "0x76E4b5DDD42BD84161f7f298D35723FbC576e861",
     'F-XRP': "0xBAf7dE33f98B018055EA5aCDfBDcA9be11780d06",
-    'F-DOGE': "0x0000000000000000000000000000000000000000", // Dummy if not deployed
-    'F-LTC': "0x0000000000000000000000000000000000000000", // Dummy if not deployed
+    'F-DOGE': "0x0000000000000000000000000000000000000000",
+    'F-LTC': "0x0000000000000000000000000000000000000000",
 };
 
 const milestoneSchema = z.object({
@@ -72,7 +71,6 @@ export default function CreateCampaignPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  // --- WAGMI HOOKS ---
   const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess, error: receiptError } = useWaitForTransactionReceipt({ 
@@ -98,16 +96,14 @@ export default function CreateCampaignPage() {
     name: 'milestones',
   });
 
-  // --- FEEDBACK LOGIC ---
   useEffect(() => {
     if (isSuccess) {
       toast({
         title: "Campaign Created Successfully! 🚀",
         description: "Your Smart Account has been deployed to the Flare Network.",
-        variant: "default", // You might want to create a 'success' variant in toast.tsx or use default
+        variant: "default",
         className: "bg-green-100 border-green-500 text-green-900"
       });
-      // Small delay before redirect so user sees the success
       setTimeout(() => router.push('/dashboard'), 2000);
     }
     if (writeError || receiptError) {
@@ -119,12 +115,7 @@ export default function CreateCampaignPage() {
     }
   }, [isSuccess, writeError, receiptError, toast, router]);
 
-
-  // --- SUBMIT LOGIC ---
   const onSubmit = (data: CampaignFormValues) => {
-    console.log("Submitting...", data);
-
-    // 1. Calculate duration
     const deadlineDate = new Date(data.deadline);
     const today = new Date();
     const durationDays = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
@@ -134,12 +125,9 @@ export default function CreateCampaignPage() {
         return;
     }
 
-    // 2. Prepare Assets
-    // Filter out assets that we don't have mock addresses for, or use the dummy ones
     const selectedTickers = data.acceptedAssets;
     const selectedAddresses = selectedTickers.map(ticker => MOCK_TOKENS[ticker] || "0x0000000000000000000000000000000000000000");
 
-    // 3. Send Transaction
     writeContract({
         address: FACTORY_ADDRESS as `0x${string}`,
         abi: FactoryABI as Abi,
@@ -147,9 +135,9 @@ export default function CreateCampaignPage() {
         args: [
             data.title,
             data.description,
-            "https://placehold.co/600x400/png", // Placeholder image until Firebase Storage is hooked up
+            "https://placehold.co/600x400/png",
             data.category,
-            BigInt(data.fundingGoal) * BigInt(10**18), // Assuming 18 decimals for USD goal
+            BigInt(data.fundingGoal) * BigInt(10**18),
             BigInt(durationDays),
             data.requiresFdc,
             selectedAddresses,
@@ -339,3 +327,5 @@ export default function CreateCampaignPage() {
     </div>
   );
 }
+
+    

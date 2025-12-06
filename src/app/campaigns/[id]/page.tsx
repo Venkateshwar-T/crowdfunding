@@ -1,46 +1,54 @@
-
 'use client';
 
-import { mockCampaigns, mockPriceFeeds } from "@/lib/mock-data";
-import { notFound } from "next/navigation";
+import { useState, useEffect } from 'react';
+import { useParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import { format } from "date-fns";
+import { differenceInDays } from "date-fns";
+import { 
+  Clock, Users, Target, Calendar, CheckCircle, 
+  GitCommit, FileText, Loader2, AlertTriangle 
+} from "lucide-react";
+
+// UI Components
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
 import { Badge } from "@/components/ui/badge";
-import { FAssetIcon } from "@/components/shared/FAssetIcon";
-import { ProgressBar } from "@/components/shared/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Users, Target, Calendar, CheckCircle, GitCommit, FileText, Loader2 } from "lucide-react";
-import { differenceInDays, format } from "date-fns";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PriceTicker } from "@/components/shared/PriceTicker";
 import { Input } from "@/components/ui/input";
-import { FtsoPriceGuidance } from "@/components/campaign/FtsoPriceGuidance";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+
+// Shared Components
+import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
+import { FAssetIcon } from "@/components/shared/FAssetIcon";
+import { ProgressBar } from "@/components/shared/ProgressBar";
+import { PriceTicker } from "@/components/shared/PriceTicker";
+import { FtsoPriceGuidance } from "@/components/campaign/FtsoPriceGuidance";
+
+// Data & Types
+import { mockCampaigns, mockPriceFeeds } from "@/lib/mock-data";
+import { type Campaign } from "@/lib/types";
+
+// Blockchain
 import { useReadContracts } from "wagmi";
 import CampaignABI from '@/lib/abi/Campaign.json';
 import { type Abi, formatEther } from "viem";
-import { type Campaign } from "@/lib/types";
-import { useEffect, useState } from "react";
 
-export default function CampaignDetailPage({ params }: { params: { id: string } }) {
-  const [id, setId] = useState<string | null>(null);
+export default function CampaignDetailPage() {
+  const params = useParams();
+  const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
+
   const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
 
-  useEffect(() => {
-    if (params.id) {
-        setId(params.id);
-    }
-  }, [params.id]);
-
   // --- BLOCKCHAIN DATA FETCHING ---
+  const isBlockchainId = id?.startsWith('0x');
+  
   const campaignContractConfig = {
     abi: CampaignABI as Abi,
-    address: id as `0x${string}`
+    address: isBlockchainId ? (id as `0x${string}`) : undefined,
   } as const;
 
   const { data: campaignData, isLoading: isLoadingBlockchain } = useReadContracts({
@@ -53,81 +61,104 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
       { ...campaignContractConfig, functionName: 'deadline' },
       { ...campaignContractConfig, functionName: 'creator' },
       { ...campaignContractConfig, functionName: 'description' },
-      { ...campaignContractConfig, functionName: 'getDetails' }, // Fetches tickers
+      { ...campaignContractConfig, functionName: 'getDetails' }, 
     ],
-    query: { enabled: !!id && id.startsWith('0x') } // Only run for blockchain addresses
+    query: { 
+        enabled: !!isBlockchainId 
+    }
   });
 
   useEffect(() => {
     if (!id) return;
-    let foundCampaign = mockCampaigns.find((c) => c.id === id) || null;
 
-    if (!foundCampaign && campaignData) {
-        // Transform blockchain data into app format
+    const mockFound = mockCampaigns.find((c) => c.id === id);
+    if (mockFound) {
+        setCampaign(mockFound);
+        return;
+    }
+
+    if (isBlockchainId && campaignData) {
         const [
-            title, imageUrl, category, currentFundingUSD, fundingGoalUSD,
-            deadline, creator, description, details
+            titleRes, imgRes, catRes, currRes, goalRes, 
+            deadRes, creatorRes, descRes, detailsRes
         ] = campaignData;
 
-        if (title.status === 'success') {
-             const currentFundingWei = (currentFundingUSD?.result as bigint) || BigInt(0);
-             const goalWei = (fundingGoalUSD?.result as bigint) || BigInt(0);
-             const deadlineSeconds = Number(deadline?.result || 0);
-             const acceptedTickers = (details?.result as any)?.[4] || [];
+        if (titleRes?.status === 'success') {
+             const currentFundingWei = (currRes?.result as bigint) || BigInt(0);
+             const goalWei = (goalRes?.result as bigint) || BigInt(0);
+             const deadlineSeconds = Number(deadRes?.result || 0);
+             const acceptedTickers = (detailsRes?.result as any)?.[4] || [];
 
-            foundCampaign = {
+            const foundCampaign: Campaign = {
                 id: id,
-                title: title.result as string || "Untitled",
-                description: description.result as string || "Blockchain Campaign Description",
-                imageUrl: imageUrl.result as string || "https://placehold.co/600x400",
+                title: titleRes.result as string || "Untitled Campaign",
+                description: (descRes?.result as string) || "No description provided.",
+                imageUrl: (imgRes?.result as string) || "https://placehold.co/600x400",
                 imageHint: "blockchain project",
-                category: (category.result as string || "Tech") as Campaign['category'],
+                category: (catRes?.result as any) || "Tech",
                 currentFunding: Number(formatEther(currentFundingWei)),
                 fundingGoal: Number(formatEther(goalWei)),
                 deadline: new Date(deadlineSeconds * 1000).toISOString(),
                 creator: {
                     id: "creator-chain",
-                    name: (creator.result as string)?.slice(0, 6) + "...",
+                    name: (creatorRes?.result as string)?.slice(0, 8) + "...",
                     avatarUrl: "https://placehold.co/100",
                     isVerified: false
                 },
                 status: 'active',
-                acceptedAssets: acceptedTickers.map((ticker: string) => ({ symbol: ticker, name: `Flare ${ticker.split('-')[1]}` })),
-                milestones: [], // Milestones would need separate contract logic
-                requiresFdc: false, // This would also need to be fetched
+                acceptedAssets: acceptedTickers.map((ticker: string) => ({ 
+                    symbol: ticker, 
+                    name: `Flare ${ticker.replace('F-', '')}` 
+                })),
+                milestones: [], 
+                requiresFdc: false,
             };
+            setCampaign(foundCampaign);
+        } else {
+            setCampaign(null);
         }
+    } else if (isBlockchainId && !isLoadingBlockchain && !campaignData) {
+        setCampaign(null);
     }
-     setCampaign(foundCampaign);
-  }, [campaignData, id]);
+  }, [campaignData, id, isBlockchainId, isLoadingBlockchain]);
 
-  if (isLoadingBlockchain || campaign === undefined || !id) {
+  // --- LOADING STATES ---
+  if (campaign === undefined) {
     return (
-        <div className="w-full h-[80vh] flex items-center justify-center">
+        <div className="w-full h-[80vh] flex flex-col items-center justify-center gap-4">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading Campaign Details...</p>
         </div>
-    )
+    );
   }
 
-  if (!campaign) {
-    notFound();
+  // --- NOT FOUND STATE ---
+  if (campaign === null) {
+    return (
+        <div className="container mx-auto py-20 text-center">
+            <div className="flex justify-center mb-4">
+                <AlertTriangle className="h-12 w-12 text-yellow-500" />
+            </div>
+            <h1 className="text-2xl font-bold mb-2">Campaign Not Found</h1>
+            <p className="text-muted-foreground mb-6">
+                We couldn't find a campaign with ID: <span className="font-mono bg-muted px-2 py-1 rounded">{id}</span>
+            </p>
+            <Button asChild>
+                <Link href="/campaigns">Back to Explore</Link>
+            </Button>
+        </div>
+    );
   }
 
+  // --- RENDER CAMPAIGN ---
   const daysLeft = differenceInDays(new Date(campaign.deadline), new Date());
-  const primaryAsset = campaign.acceptedAssets[0];
+  const primaryAsset = campaign.acceptedAssets?.[0];
   const priceFeed = primaryAsset ? mockPriceFeeds.find(f => f.asset === primaryAsset.symbol) : undefined;
 
   const stats = [
-    { label: "Backers", value: campaign.currentFunding > 0 ? ((campaign.currentFunding / 50) + 15).toFixed(0) : 0, icon: Users },
+    { label: "Backers", value: campaign.currentFunding > 0 ? ((campaign.currentFunding / 50) + 15).toFixed(0) : "0", icon: Users },
     { label: "Goal", value: `$${campaign.fundingGoal.toLocaleString()}`, icon: Target },
     { label: "Days to go", value: daysLeft > 0 ? daysLeft : 0, icon: Clock },
-  ];
-
-  const transactions = [
-    { hash: "0x12..ef", from: "0xab..cd", amount: "50 F-XRP", date: "2h ago" },
-    { hash: "0x34..ab", from: "0xef..12", amount: "0.01 F-BTC", date: "5h ago" },
-    { hash: "0x56..56", from: "0xcd..ab", amount: "100 F-XRP", date: "1d ago" },
-    { hash: "0x78..34", from: "0x12..ef", amount: "0.005 F-BTC", date: "2d ago" },
   ];
 
   return (
@@ -136,13 +167,13 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
         {/* Header */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3">
-            <div className="relative h-96 w-full rounded-xl overflow-hidden shadow-lg">
+            <div className="relative h-96 w-full rounded-xl overflow-hidden shadow-lg border">
               <Image
                 src={campaign.imageUrl}
                 alt={campaign.title}
                 fill
                 className="object-cover"
-                data-ai-hint={campaign.imageHint}
+                priority
               />
             </div>
           </div>
@@ -162,12 +193,12 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">Accepting:</span>
-                    {campaign.acceptedAssets.map(asset => (
+                    {campaign.acceptedAssets.length > 0 ? campaign.acceptedAssets.map(asset => (
                         <Badge key={asset.symbol} variant="outline" className="gap-1.5 pl-2">
                             <FAssetIcon asset={asset.symbol as any} />
                             {asset.symbol}
                         </Badge>
-                    ))}
+                    )) : <span className="text-sm text-muted-foreground italic">No assets listed</span>}
                 </div>
             </div>
             <div className="mt-6 flex-grow flex flex-col justify-end">
@@ -179,7 +210,6 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                                 <div key={stat.label}>
                                     <p className="text-2xl font-bold">{stat.value}</p>
                                     <p className="text-sm text-muted-foreground">{stat.label}</p>
-
                                 </div>
                             ))}
                         </div>
@@ -202,11 +232,6 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                 <Card>
                   <CardContent className="pt-6 prose dark:prose-invert max-w-none">
                     <p>{campaign.description}</p>
-                    {campaign.id.startsWith('0x') ? null : (
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper.
-                        </p>
-                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -233,7 +258,11 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                                 </CardContent>
                             </Card>
                         </div>
-                    )) : <p className="text-muted-foreground text-center pt-8">No milestones defined for this campaign.</p>}
+                    )) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                            No milestones set for this campaign.
+                        </div>
+                    )}
                  </div>
               </TabsContent>
               <TabsContent value="updates" className="mt-6">
@@ -243,7 +272,6 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                     </CardHeader>
                     <CardContent>
                         <p className="text-muted-foreground">No updates posted by the creator yet.</p>
-                        {/* UI for creator to upload would go here */}
                     </CardContent>
                  </Card>
               </TabsContent>
@@ -263,11 +291,15 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                                 <Input type="number" placeholder="0.00" className="text-lg" />
                                 <span className="font-semibold">{primaryAsset.symbol}</span>
                             </div>
-                            <p className="text-sm text-muted-foreground text-center">~ $0.00 USD</p>
+                            <p className="text-sm text-muted-foreground text-center">
+                                ~ $0.00 USD (Using FTSO)
+                            </p>
                             <Button className="w-full" size="lg">Contribute</Button>
                         </>
                     ) : (
-                        <p className="text-muted-foreground text-center py-4">This campaign is not accepting any assets.</p>
+                        <div className="text-center py-4">
+                            <p className="text-muted-foreground">This campaign is currently not accepting funds.</p>
+                        </div>
                     )}
                 </CardContent>
             </Card>
@@ -280,7 +312,8 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <FileText className="h-5 w-5" />
-                    Transaction History</CardTitle>
+                    Transaction History
+                </CardTitle>
               </CardHeader>
               <CardContent>
                  <Table>
@@ -292,13 +325,11 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {transactions.map(tx => (
-                             <TableRow key={tx.hash}>
-                                <TableCell className="font-mono font-sm"><Link href="#" className="underline">{tx.hash}</Link></TableCell>
-                                <TableCell>{tx.amount}</TableCell>
-                                <TableCell className="text-muted-foreground">{tx.date}</TableCell>
-                            </TableRow>
-                        ))}
+                        <TableRow>
+                            <TableCell colSpan={3} className="text-center text-muted-foreground py-4">
+                                No transactions yet.
+                            </TableCell>
+                        </TableRow>
                     </TableBody>
                  </Table>
               </CardContent>
@@ -309,3 +340,5 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
     </div>
   );
 }
+
+    
