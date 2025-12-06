@@ -9,8 +9,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Separator } from '../ui/separator';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
+import { WalletConnect } from './WalletConnect';
 
 const navLinks = [
   { href: '/campaigns', label: 'Explore' },
@@ -80,7 +80,7 @@ export default function Navbar() {
               <div className="mt-auto flex flex-col gap-4 p-6">
                 <Separator />
                 <div onClick={() => setIsMobileMenuOpen(false)}>
-                  <ConnectButton />
+                  <WalletConnect />
                 </div>
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function Navbar() {
           </div>
           
           <div className="hidden sm:flex items-center gap-2">
-            <ConnectButton />
+             <WalletConnect />
           </div>
         </div>
       </div>
