@@ -12,20 +12,26 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { LogOut, Wallet, Landmark } from 'lucide-react';
+import { useUser, useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 export function WalletConnect() {
   const { address, isConnected, connector } = useAccount();
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
   const { data: balance } = useBalance({ address });
+  const { user } = useUser();
+  const auth = useAuth();
 
-  if (!isConnected || !address) {
-    return (
-      <Button onClick={openConnectModal} variant="outline">
-        <Wallet className="mr-2 h-5 w-5" />
-        Connect Wallet
-      </Button>
-    );
+  const handleDisconnect = () => {
+    if (auth) {
+      signOut(auth);
+    }
+    disconnect();
+  }
+
+  if (!isConnected || !address || !user) {
+    return null;
   }
 
   const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -42,6 +48,12 @@ export function WalletConnect() {
       <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel>My Wallet</DropdownMenuLabel>
         <DropdownMenuSeparator />
+         <DropdownMenuItem disabled>
+            <div className="flex flex-col">
+                <span className="text-xs text-muted-foreground">Google Account</span>
+                <span className="font-mono text-sm">{user.email}</span>
+            </div>
+        </DropdownMenuItem>
         <DropdownMenuItem disabled>
             <div className="flex flex-col">
                 <span className="text-xs text-muted-foreground">Connected to {connectorName}</span>
@@ -58,7 +70,7 @@ export function WalletConnect() {
             </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => disconnect()}>
+        <DropdownMenuItem onClick={handleDisconnect}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Disconnect</span>
         </DropdownMenuItem>

@@ -20,6 +20,7 @@ import { formatEther, type Abi } from 'viem';
 import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
 import CampaignABI from '@/lib/abi/Campaign.json';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/firebase';
 
 // --- CONFIGURATION ---
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
@@ -49,6 +50,7 @@ const unlockedFeatures = [
 
 export default function DashboardPage() {
     const { address: userAddress, isConnected } = useAccount();
+    const { user } = useUser();
     const { toast } = useToast();
     const [myCampaigns, setMyCampaigns] = useState<any[]>([]);
     const [myContributions, setMyContributions] = useState<any[]>([]);
@@ -139,11 +141,11 @@ export default function DashboardPage() {
         }, 3000);
     }
 
-    if (!isConnected) {
+    if (!isConnected || !user) {
         return (
             <div className="flex flex-col items-center justify-center h-[50vh]">
-                <h2 className="text-xl font-semibold mb-4">Please connect your wallet</h2>
-                <p className="text-muted-foreground">You need to connect your wallet to view your dashboard.</p>
+                <h2 className="text-xl font-semibold mb-4">Please connect your wallet and sign in.</h2>
+                <p className="text-muted-foreground">You need to be fully authenticated to view your dashboard.</p>
             </div>
         );
     }

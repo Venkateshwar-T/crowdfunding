@@ -11,6 +11,8 @@ import { useState } from 'react';
 import { Separator } from '../ui/separator';
 import { useAccount } from 'wagmi';
 import { WalletConnect } from './WalletConnect';
+import { useUser } from '@/firebase';
+import { RegisterDialog } from '../shared/RegisterDialog';
 
 const navLinks = [
   { href: '/campaigns', label: 'Explore' },
@@ -30,6 +32,9 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isConnected } = useAccount();
+  const { user } = useUser();
+
+  const isAuthenticated = user && isConnected;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -66,7 +71,7 @@ export default function Navbar() {
                     {label}
                   </Link>
                 ))}
-                {isConnected && (
+                {isAuthenticated && (
                    <Link
                     href="/dashboard"
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -82,7 +87,7 @@ export default function Navbar() {
               <div className="mt-auto flex flex-col gap-4 p-6">
                 <Separator />
                 <div onClick={() => setIsMobileMenuOpen(false)}>
-                  <WalletConnect />
+                  {isAuthenticated ? <WalletConnect /> : <RegisterDialog onRegister={() => setIsMobileMenuOpen(false)} />}
                 </div>
               </div>
             </div>
@@ -105,7 +110,7 @@ export default function Navbar() {
                   {label}
                 </Link>
               ))}
-              {isConnected && (
+              {isAuthenticated && (
                  <Link
                   href="/dashboard"
                   className={cn(
@@ -120,7 +125,7 @@ export default function Navbar() {
           </div>
           
           <div className="hidden sm:flex items-center gap-2">
-             <WalletConnect />
+             {isAuthenticated ? <WalletConnect /> : <RegisterDialog />}
           </div>
         </div>
       </div>
