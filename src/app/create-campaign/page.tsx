@@ -25,7 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
 
@@ -74,6 +74,7 @@ const availableAssets = [
 export default function CreateCampaignPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const [imageUrl, setImageUrl] = useState<string>("https://placehold.co/600x400/png");
 
   const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
   
@@ -112,11 +113,37 @@ export default function CreateCampaignPage() {
     if (writeError || receiptError) {
       toast({
         title: "Transaction Failed",
-        description: (writeError?.message || receiptError?.message)?.slice(0, 100) + "...",
+        description: (writeError?.shortMessage || receiptError?.shortMessage || "An unknown error occurred."),
         variant: "destructive",
       });
     }
   }, [isSuccess, writeError, receiptError, toast, router]);
+
+  const handleImageUpload = (file: File | null) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        if (dataUrl.length > 1024 * 1024) { // 1MB limit
+             toast({
+                title: "Image too large",
+                description: "Please upload an image smaller than 1MB. Larger images may cause the transaction to fail due to high gas fees.",
+                variant: "destructive"
+             });
+             // Also clear the file input if you have a way to do so
+             form.setValue('image', null);
+             setImageUrl("https://placehold.co/600x400/png");
+        } else {
+             setImageUrl(dataUrl);
+        }
+      };
+      reader.readAsDataURL(file);
+      form.setValue('image', file);
+    } else {
+      form.setValue('image', null);
+      setImageUrl("https://placehold.co/600x400/png");
+    }
+  }
 
   const onSubmit = (data: CampaignFormValues) => {
     const deadlineDate = new Date(data.deadline);
@@ -128,8 +155,12 @@ export default function CreateCampaignPage() {
         return;
     }
 
-    const selectedTickers = data.acceptedAssets;
-    const selectedAddresses = selectedTickers.map(ticker => MOCK_TOKENS[ticker] || "0x0000000000000000000000000000000000000000");
+    // WORKAROUND: Only send the first selected asset due to a bug in the factory contract
+    const firstTicker = data.acceptedAssets[0];
+    const firstAddress = MOCK_TOKENS[firstTicker] || "0x0000000000000000000000000000000000000000";
+
+    const selectedTickers = [firstTicker];
+    const selectedAddresses = [firstAddress];
 
     writeContract({
         address: FACTORY_ADDRESS as `0x${string}`,
@@ -138,7 +169,7 @@ export default function CreateCampaignPage() {
         args: [
             data.title,
             data.description,
-            "https://placehold.co/600x400/png",
+            imageUrl,
             data.category,
             BigInt(data.fundingGoal) * BigInt(10**18),
             BigInt(durationDays),
@@ -256,13 +287,13 @@ export default function CreateCampaignPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Campaign Image</CardTitle>
-                    <CardDescription>A picture is worth a thousand words.</CardDescription>
+                    <CardDescription>A picture is worth a thousand words. Using large images may result in high gas fees.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                     <FormField name="image" control={form.control} render={({ field }) => (
+                     <FormField name="image" control={form.control} render={() => (
                         <FormItem>
                             <FormControl>
-                                <FileUpload onFileSelect={field.onChange} />
+                                <FileUpload onFileSelect={handleImageUpload} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -301,11 +332,11 @@ export default function CreateCampaignPage() {
                             <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                         </FormItem>
                     )} />
-                     <FormField name="acceptedAssets" control={form.control} render={({ field }) => (
+                     <FormField name="acceptedAssets" control={form.control} render={() => (
                         <FormItem>
                              <div className="mb-4">
                                 <FormLabel>Accepted FAssets</FormLabel>
-                                <FormDescription>Choose which assets your campaign will accept.</FormDescription>
+                                <FormDescription>Choose which assets your campaign will accept. (Note: Due to a contract issue, only the first selected asset will be enabled for now.)</FormDescription>
                              </div>
                              <div className="grid grid-cols-2 gap-4">
                                 {availableAssets.map((asset) => (
