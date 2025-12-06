@@ -29,7 +29,7 @@ export function PriceTicker({ feed }: PriceTickerProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{feed.asset} Price (FTSO Mock)</CardTitle>
+        <CardTitle className="text-sm font-medium">{feed.asset} Price (FTSO)</CardTitle>
         <span className="text-sm text-muted-foreground">USD</span>
       </CardHeader>
       <CardContent>
