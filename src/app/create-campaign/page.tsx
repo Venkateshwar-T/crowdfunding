@@ -61,7 +61,7 @@ const campaignFormSchema = z.object({
 
 export type CampaignFormValues = z.infer<typeof campaignFormSchema>;
 
-const categories = ['Tech', 'Art', 'Music', 'DeFi', 'Gaming'];
+const categories = ['Tech', 'Medical', 'DeFi', 'Gaming'];
 
 const availableAssets = [
     { symbol: 'F-BTC', name: 'Flare BTC' },
@@ -395,5 +395,3 @@ export default function CreateCampaignPage() {
     </div>
   );
 }
-
-    

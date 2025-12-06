@@ -20,7 +20,7 @@ import { type Campaign } from '@/lib/types';
 // --- REPLACE WITH YOUR REAL FACTORY ADDRESS ---
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
 
-const categories = ['All', 'Tech', 'Art', 'Music', 'DeFi', 'Gaming'];
+const categories = ['All', 'Tech', 'Medical', 'DeFi', 'Gaming'];
 const statuses = ['All', 'active', 'successful', 'expired'];
 
 export default function ExploreCampaignsPage() {
@@ -225,5 +225,3 @@ export default function ExploreCampaignsPage() {
     </div>
   );
 }
-
-    
