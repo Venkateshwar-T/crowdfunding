@@ -1,3 +1,6 @@
+
+'use client';
+
 import { mockCampaigns, mockPriceFeeds } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -8,7 +11,7 @@ import { FAssetIcon } from "@/components/shared/FAssetIcon";
 import { ProgressBar } from "@/components/shared/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Users, Target, Calendar, CheckCircle, GitCommit, FileText } from "lucide-react";
+import { Clock, Users, Target, Calendar, CheckCircle, GitCommit, FileText, Loader2 } from "lucide-react";
 import { differenceInDays, format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,9 +21,85 @@ import { FtsoPriceGuidance } from "@/components/campaign/FtsoPriceGuidance";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useReadContracts } from "wagmi";
+import CampaignABI from '@/lib/abi/Campaign.json';
+import { type Abi, formatEther } from "viem";
+import { type Campaign } from "@/lib/types";
+import { useEffect, useState } from "react";
 
 export default function CampaignDetailPage({ params }: { params: { id: string } }) {
-  const campaign = mockCampaigns.find((c) => c.id === params.id);
+  const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
+
+  // --- BLOCKCHAIN DATA FETCHING ---
+  const campaignContractConfig = {
+    abi: CampaignABI as Abi,
+    address: params.id as `0x${string}`
+  } as const;
+
+  const { data: campaignData, isLoading: isLoadingBlockchain } = useReadContracts({
+    contracts: [
+      { ...campaignContractConfig, functionName: 'title' },
+      { ...campaignContractConfig, functionName: 'imageUrl' },
+      { ...campaignContractConfig, functionName: 'category' },
+      { ...campaignContractConfig, functionName: 'currentFundingUSD' },
+      { ...campaignContractConfig, functionName: 'fundingGoalUSD' },
+      { ...campaignContractConfig, functionName: 'deadline' },
+      { ...campaignContractConfig, functionName: 'creator' },
+      { ...campaignContractConfig, functionName: 'description' },
+      { ...campaignContractConfig, functionName: 'getDetails' }, // Fetches tickers
+    ],
+    query: { enabled: params.id.startsWith('0x') } // Only run for blockchain addresses
+  });
+
+  useEffect(() => {
+    let foundCampaign = mockCampaigns.find((c) => c.id === params.id) || null;
+
+    if (!foundCampaign && campaignData) {
+        // Transform blockchain data into app format
+        const [
+            title, imageUrl, category, currentFundingUSD, fundingGoalUSD,
+            deadline, creator, description, details
+        ] = campaignData;
+
+        if (title.status === 'success') {
+             const currentFundingWei = (currentFundingUSD?.result as bigint) || BigInt(0);
+             const goalWei = (fundingGoalUSD?.result as bigint) || BigInt(0);
+             const deadlineSeconds = Number(deadline?.result || 0);
+             const acceptedTickers = (details?.result as any)?.[4] || [];
+
+            foundCampaign = {
+                id: params.id,
+                title: title.result as string || "Untitled",
+                description: description.result as string || "Blockchain Campaign Description",
+                imageUrl: imageUrl.result as string || "https://placehold.co/600x400",
+                imageHint: "blockchain project",
+                category: (category.result as string || "Tech") as Campaign['category'],
+                currentFunding: Number(formatEther(currentFundingWei)),
+                fundingGoal: Number(formatEther(goalWei)),
+                deadline: new Date(deadlineSeconds * 1000).toISOString(),
+                creator: {
+                    id: "creator-chain",
+                    name: (creator.result as string)?.slice(0, 6) + "...",
+                    avatarUrl: "https://placehold.co/100",
+                    isVerified: false
+                },
+                status: 'active',
+                acceptedAssets: acceptedTickers.map((ticker: string) => ({ symbol: ticker, name: `Flare ${ticker.split('-')[1]}` })),
+                milestones: [], // Milestones would need separate contract logic
+                requiresFdc: false, // This would also need to be fetched
+            };
+        }
+    }
+     setCampaign(foundCampaign);
+  }, [campaignData, params.id]);
+
+  if (isLoadingBlockchain || campaign === undefined) {
+    return (
+        <div className="w-full h-[80vh] flex items-center justify-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+    )
+  }
 
   if (!campaign) {
     notFound();
@@ -28,10 +107,10 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
 
   const daysLeft = differenceInDays(new Date(campaign.deadline), new Date());
   const primaryAsset = campaign.acceptedAssets[0];
-  const priceFeed = mockPriceFeeds.find(f => f.asset === primaryAsset.symbol);
+  const priceFeed = primaryAsset ? mockPriceFeeds.find(f => f.asset === primaryAsset.symbol) : undefined;
 
   const stats = [
-    { label: "Backers", value: ((campaign.currentFunding / 50) + 15).toFixed(0), icon: Users },
+    { label: "Backers", value: campaign.currentFunding > 0 ? ((campaign.currentFunding / 50) + 15).toFixed(0) : 0, icon: Users },
     { label: "Goal", value: `$${campaign.fundingGoal.toLocaleString()}`, icon: Target },
     { label: "Days to go", value: daysLeft > 0 ? daysLeft : 0, icon: Clock },
   ];
@@ -77,7 +156,7 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                     <span className="text-sm text-muted-foreground">Accepting:</span>
                     {campaign.acceptedAssets.map(asset => (
                         <Badge key={asset.symbol} variant="outline" className="gap-1.5 pl-2">
-                            <FAssetIcon asset={asset.symbol} />
+                            <FAssetIcon asset={asset.symbol as any} />
                             {asset.symbol}
                         </Badge>
                     ))}
@@ -114,15 +193,17 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                 <Card>
                   <CardContent className="pt-6 prose dark:prose-invert max-w-none">
                     <p>{campaign.description}</p>
-                    <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper.
-                    </p>
+                    {campaign.id.startsWith('0x') ? null : (
+                        <p>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper.
+                        </p>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
               <TabsContent value="milestones" className="mt-6">
                  <div className="space-y-6">
-                    {campaign.milestones.map((milestone, index) => (
+                    {campaign.milestones.length > 0 ? campaign.milestones.map((milestone, index) => (
                         <div key={milestone.id} className="flex items-start gap-4">
                              <div className="flex flex-col items-center">
                                 <div className={cn("rounded-full h-10 w-10 flex items-center justify-center", milestone.status === 'completed' ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
@@ -143,7 +224,7 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                                 </CardContent>
                             </Card>
                         </div>
-                    ))}
+                    )) : <p className="text-muted-foreground text-center pt-8">No milestones defined for this campaign.</p>}
                  </div>
               </TabsContent>
               <TabsContent value="updates" className="mt-6">
@@ -166,13 +247,19 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                     <CardTitle>Fund This Campaign</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="flex items-center gap-2">
-                        <FAssetIcon asset={primaryAsset.symbol} className="h-6 w-6" />
-                        <Input type="number" placeholder="0.00" className="text-lg" />
-                        <span className="font-semibold">{primaryAsset.symbol}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground text-center">~ $0.00 USD</p>
-                    <Button className="w-full" size="lg">Contribute</Button>
+                    {primaryAsset ? (
+                        <>
+                            <div className="flex items-center gap-2">
+                                <FAssetIcon asset={primaryAsset.symbol as any} className="h-6 w-6" />
+                                <Input type="number" placeholder="0.00" className="text-lg" />
+                                <span className="font-semibold">{primaryAsset.symbol}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground text-center">~ $0.00 USD</p>
+                            <Button className="w-full" size="lg">Contribute</Button>
+                        </>
+                    ) : (
+                        <p className="text-muted-foreground text-center py-4">This campaign is not accepting any assets.</p>
+                    )}
                 </CardContent>
             </Card>
 
@@ -212,4 +299,5 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
       </div>
     </div>
   );
-}
+
+    

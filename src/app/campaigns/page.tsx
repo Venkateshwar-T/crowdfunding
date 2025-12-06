@@ -1,28 +1,114 @@
 'use client';
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { CampaignCard } from '@/components/shared/CampaignCard';
 import { mockCampaigns } from '@/lib/mock-data';
-import type { Campaign } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
-import { ListFilter } from 'lucide-react';
+import { ListFilter, Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+// --- BLOCKCHAIN IMPORTS ---
+import { useReadContract, useReadContracts } from 'wagmi';
+import { formatEther, type Abi } from 'viem';
+import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
+import CampaignABI from '@/lib/abi/Campaign.json';
+
+// --- REPLACE WITH YOUR REAL FACTORY ADDRESS ---
+const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
 
 const categories = ['All', 'Tech', 'Art', 'Music', 'DeFi', 'Gaming'];
 const statuses = ['All', 'active', 'successful', 'expired'];
 
 export default function ExploreCampaignsPage() {
+  // 1. Fetch list of Campaign Addresses from Factory
+  const { data: campaignAddresses } = useReadContract({
+    address: FACTORY_ADDRESS as `0x${string}`,
+    abi: FactoryABI,
+    functionName: 'getDeployedCampaigns',
+  });
+
+  // 2. Prepare hooks to read data from EACH campaign found
+  const campaignsContractConfig = {
+    abi: CampaignABI as Abi, // Type fix
+  } as const;
+
+  const addresses = (campaignAddresses as string[]) || [];
+
+  const contracts = addresses.map((addr) => [
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'title' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'imageUrl' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'category' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'currentFundingUSD' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'fundingGoalUSD' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'deadline' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'creator' },
+  ]).flat();
+
+  // 3. Fetch all details in one go
+  const { data: campaignData, isLoading: isLoadingBlockchain } = useReadContracts({
+    contracts: contracts,
+    query: { enabled: addresses.length > 0 }
+  });
+
+  // 4. Transform Blockchain Data into App Format
+  const [realCampaigns, setRealCampaigns] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (campaignData && addresses.length > 0) {
+      const campaigns = [];
+      
+      // Each campaign has 7 calls, so we step by 7
+      for (let i = 0; i < addresses.length; i++) {
+        const base = i * 7;
+        
+        // Check if data exists before accessing to avoid errors
+        if (campaignData[base]?.status === 'success') {
+            const currentFundingWei = campaignData[base + 3]?.result as bigint || BigInt(0);
+            const goalWei = campaignData[base + 4]?.result as bigint || BigInt(0);
+            const deadlineSeconds = Number(campaignData[base + 5]?.result || 0);
+
+            campaigns.push({
+                id: addresses[i], // Use address as ID
+                title: campaignData[base].result as string || "Untitled",
+                description: "Blockchain Campaign", // Description not fetched in list view to save data
+                imageUrl: campaignData[base + 1].result as string || "https://placehold.co/600x400",
+                imageHint: "blockchain project",
+                category: campaignData[base + 2].result as string || "Tech",
+                currentFunding: Number(formatEther(currentFundingWei)), // Convert Wei to USD/Ether
+                fundingGoal: Number(formatEther(goalWei)),
+                deadline: new Date(deadlineSeconds * 1000).toISOString(),
+                creator: { 
+                    id: "creator-chain",
+                    name: (campaignData[base + 6].result as string)?.slice(0, 6) + "...", 
+                    avatarUrl: "https://placehold.co/100", 
+                    isVerified: false 
+                },
+                status: 'active',
+                acceptedAssets: [], 
+                milestones: [],
+                requiresFdc: false
+            });
+        }
+      }
+      setRealCampaigns(campaigns);
+    }
+  }, [campaignData, addresses]);
+
+  // Merge Real + Mock for Demo
+  const allCampaigns = [...realCampaigns, ...mockCampaigns];
+
+  // --- FILTERS STATE ---
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('All');
   const [status, setStatus] = useState('All');
   const [requiresFdc, setRequiresFdc] = useState(false);
   const [sortBy, setSortBy] = useState('trending');
 
-
-  const filteredCampaigns = mockCampaigns
+  const filteredCampaigns = allCampaigns
     .filter((campaign) =>
       campaign.title.toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -43,7 +129,9 @@ export default function ExploreCampaignsPage() {
                 return b.fundingGoal - a.fundingGoal;
             case 'trending':
             default:
-                return (b.currentFunding / b.fundingGoal) - (a.currentFunding / a.fundingGoal);
+                const aPercent = a.fundingGoal > 0 ? a.currentFunding / a.fundingGoal : 0;
+                const bPercent = b.fundingGoal > 0 ? b.currentFunding / b.fundingGoal : 0;
+                return bPercent - aPercent;
         }
     });
 
@@ -124,12 +212,19 @@ export default function ExploreCampaignsPage() {
                     </Select>
                 </div>
             </div>
+          
+          {isLoadingBlockchain && (
+             <div className="w-full flex justify-center py-8 text-muted-foreground">
+                <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading Blockchain Data...
+             </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCampaigns.map((campaign) => (
               <CampaignCard key={campaign.id} campaign={campaign} />
             ))}
           </div>
-          {filteredCampaigns.length === 0 && (
+          {filteredCampaigns.length === 0 && !isLoadingBlockchain && (
             <div className="text-center py-16 col-span-full">
                 <p className="text-muted-foreground">No campaigns found matching your criteria.</p>
             </div>

@@ -14,7 +14,7 @@ import { FileUpload } from "@/components/shared/FileUpload";
 
 // --- WEB3 IMPORTS ---
 import { useAccount, useReadContract, useReadContracts } from 'wagmi';
-import { formatEther } from 'viem';
+import { formatEther, type Abi } from 'viem';
 import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
 import CampaignABI from '@/lib/abi/Campaign.json';
 
@@ -38,7 +38,7 @@ export default function DashboardPage() {
     });
 
     // 2. Prepare bulk reads
-    const campaignConfig = { abi: CampaignABI } as const;
+    const campaignConfig = { abi: CampaignABI as Abi } as const;
     const allAddresses = (campaignAddresses as string[]) || [];
 
     // We need to fetch Creator and Title for "My Campaigns"
