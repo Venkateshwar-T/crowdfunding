@@ -208,49 +208,48 @@ export default function CampaignDetailPage() {
 
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Image */}
+            <div className="space-y-4">
+              <Badge variant="secondary">{campaign.category}</Badge>
+              <h1 className="font-headline text-4xl font-bold">{campaign.title}</h1>
+            </div>
+
             <div className="relative h-96 w-full rounded-xl overflow-hidden shadow-lg border">
               <Image src={campaign.imageUrl} alt={campaign.title} fill className="object-cover" />
             </div>
 
-            {/* Story */}
-             <div className="lg:hidden">
-              <Badge variant="secondary">{campaign.category}</Badge>
-              <h1 className="font-headline text-4xl font-bold mt-2">{campaign.title}</h1>
-              <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
-                <span>Created by</span>
-                <span className="font-semibold text-foreground flex items-center gap-2">
-                    <Avatar className="h-6 w-6"><AvatarFallback>CR</AvatarFallback></Avatar>
-                    {campaign.creator.name}
-                </span>
-              </div>
-            </div>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Story</CardTitle>
-                </CardHeader>
-                <CardContent className="prose dark:prose-invert max-w-none">
-                    <p>{campaign.description}</p>
-                </CardContent>
-            </Card>
+            <Tabs defaultValue="story" className="w-full">
+              <TabsList>
+                  <TabsTrigger value="story">Story</TabsTrigger>
+                  <TabsTrigger value="milestones">Milestones</TabsTrigger>
+                  <TabsTrigger value="updates">Updates</TabsTrigger>
+              </TabsList>
+              <TabsContent value="story">
+                  <Card>
+                      <CardContent className="pt-6 prose dark:prose-invert max-w-none">
+                          <p>{campaign.description}</p>
+                      </CardContent>
+                  </Card>
+              </TabsContent>
+              <TabsContent value="milestones">
+                  <Card>
+                      <CardContent className="pt-6 text-center text-muted-foreground">
+                      Milestones are managed on-chain.
+                      </CardContent>
+                  </Card>
+              </TabsContent>
+              <TabsContent value="updates">
+                  <Card>
+                      <CardContent className="pt-6 text-center text-muted-foreground">
+                      No updates yet.
+                      </CardContent>
+                  </Card>
+              </TabsContent>
+            </Tabs>
           </div>
 
           {/* Right Column */}
           <div className="relative">
              <div className="lg:sticky lg:top-24 space-y-6">
-                <div className="hidden lg:block">
-                  <Badge variant="secondary">{campaign.category}</Badge>
-                  <h1 className="font-headline text-3xl font-bold mt-2">{campaign.title}</h1>
-                  <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
-                    <span>Created by</span>
-                    <span className="font-semibold text-foreground flex items-center gap-2">
-                        <Avatar className="h-6 w-6"><AvatarFallback>CR</AvatarFallback></Avatar>
-                        {campaign.creator.name}
-                    </span>
-                  </div>
-                </div>
-
                 <Card>
                     <CardContent className="pt-6">
                         <ProgressBar current={campaign.currentFunding} goal={campaign.fundingGoal} />
@@ -261,6 +260,16 @@ export default function CampaignDetailPage() {
                         </div>
                     </CardContent>
                 </Card>
+
+                <div>
+                  <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
+                    <span>Created by</span>
+                    <span className="font-semibold text-foreground flex items-center gap-2">
+                        <Avatar className="h-6 w-6"><AvatarFallback>CR</AvatarFallback></Avatar>
+                        {campaign.creator.name}
+                    </span>
+                  </div>
+                </div>
 
                 <Card className="border-primary/20 shadow-md">
                   <CardHeader><CardTitle>Contribute</CardTitle></CardHeader>
@@ -307,27 +316,6 @@ export default function CampaignDetailPage() {
                 </Card>
                 
                 {priceFeed && <PriceTicker feed={priceFeed} />}
-
-                 <Tabs defaultValue="milestones" className="w-full">
-                    <TabsList>
-                        <TabsTrigger value="milestones">Milestones</TabsTrigger>
-                        <TabsTrigger value="updates">Updates</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="milestones">
-                        <Card>
-                            <CardContent className="pt-6 text-center text-muted-foreground">
-                            Milestones are managed on-chain.
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-                    <TabsContent value="updates">
-                        <Card>
-                            <CardContent className="pt-6 text-center text-muted-foreground">
-                            No updates yet.
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-                </Tabs>
              </div>
           </div>
         </div>
