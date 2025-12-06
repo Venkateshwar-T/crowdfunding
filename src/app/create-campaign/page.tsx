@@ -35,6 +35,7 @@ const MOCK_TOKENS: Record<string, string> = {
     'F-XRP': "0xBAf7dE33f98B018055EA5aCDfBDcA9be11780d06",
     'F-DOGE': "0x0000000000000000000000000000000000000000",
     'F-LTC': "0x0000000000000000000000000000000000000000",
+    'F-USDC': "0x94f41643DB84e373491aE358e24278a562307E30",
 };
 
 const milestoneSchema = z.object({
@@ -71,6 +72,7 @@ const availableAssets = [
     { symbol: 'F-XRP', name: 'Flare XRP' },
     { symbol: 'F-DOGE', name: 'Flare DOGE' },
     { symbol: 'F-LTC', name: 'Flare LTC' },
+    { symbol: 'F-USDC', name: 'Flare USDC' },
 ];
 
 export default function CreateCampaignPage() {

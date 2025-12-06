@@ -23,6 +23,7 @@ const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d";
 const MOCK_TOKENS: Record<string, string> = {
     'F-BTC': "0x76E4b5DDD42BD84161f7f298D35723FbC576e861",
     'F-XRP': "0xBAf7dE33f98B018055EA5aCDfBDcA9be11780d06",
+    'F-USDC': "0x94f41643DB84e373491aE358e24278a562307E30",
 };
 
 export default function DashboardPage() {
@@ -47,6 +48,7 @@ export default function DashboardPage() {
         { ...campaignConfig, address: addr as `0x${string}`, functionName: 'currentFundingUSD' },
         { ...campaignConfig, address: addr as `0x${string}`, functionName: 'contributions', args: [userAddress, MOCK_TOKENS['F-BTC']] },
         { ...campaignConfig, address: addr as `0x${string}`, functionName: 'contributions', args: [userAddress, MOCK_TOKENS['F-XRP']] },
+        { ...campaignConfig, address: addr as `0x${string}`, functionName: 'contributions', args: [userAddress, MOCK_TOKENS['F-USDC']] },
     ]).flat();
 
     const { data: results, isLoading } = useReadContracts({
@@ -60,7 +62,7 @@ export default function DashboardPage() {
             const backed = [];
 
             for (let i = 0; i < campaignAddresses.length; i++) {
-                const base = i * 6;
+                const base = i * 7;
                 const addr = campaignAddresses[i];
                 
                 const title = results[base]?.result as string;
@@ -69,6 +71,7 @@ export default function DashboardPage() {
                 const current = results[base + 3]?.result ? formatEther(results[base + 3].result as bigint) : '0';
                 const btcContrib = results[base + 4]?.result as bigint || 0n;
                 const xrpContrib = results[base + 5]?.result as bigint || 0n;
+                const usdcContrib = results[base + 6]?.result as bigint || 0n;
 
                 if (creator === userAddress) {
                     created.push({ id: addr, title, goal, current, status: 'active' });
@@ -79,6 +82,9 @@ export default function DashboardPage() {
                 }
                 if (xrpContrib > 0n) {
                     backed.push({ id: addr, title, amount: formatEther(xrpContrib), asset: 'F-XRP', date: new Date().toISOString() });
+                }
+                 if (usdcContrib > 0n) {
+                    backed.push({ id: addr, title, amount: formatEther(usdcContrib), asset: 'F-USDC', date: new Date().toISOString() });
                 }
             }
             setMyCampaigns(created);

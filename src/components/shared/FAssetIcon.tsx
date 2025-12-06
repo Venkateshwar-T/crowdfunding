@@ -1,6 +1,7 @@
 import type { FAsset } from '@/lib/types';
 import { BtcIcon, XrpIcon, DogeIcon, LtcIcon } from '@/components/icons/FAssetIcons';
 import { cn } from '@/lib/utils';
+import { CircleDollarSign } from 'lucide-react';
 
 type FAssetIconProps = {
   asset: FAsset['symbol'];
@@ -12,6 +13,7 @@ const iconMap = {
   'F-XRP': XrpIcon,
   'F-DOGE': DogeIcon,
   'F-LTC': LtcIcon,
+  'F-USDC': CircleDollarSign,
 };
 
 const colorMap = {
@@ -19,6 +21,7 @@ const colorMap = {
     'F-XRP': 'text-blue-500',
     'F-DOGE': 'text-yellow-500',
     'F-LTC': 'text-gray-400',
+    'F-USDC': 'text-blue-600',
 }
 
 export function FAssetIcon({ asset, className }: FAssetIconProps) {

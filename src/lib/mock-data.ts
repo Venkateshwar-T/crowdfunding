@@ -142,4 +142,5 @@ export const mockPriceFeeds: PriceFeed[] = [
   { asset: 'F-XRP', price: 0.52, change24h: -1.2 },
   { asset: 'F-DOGE', price: 0.16, change24h: 5.8 },
   { asset: 'F-LTC', price: 85.30, change24h: 1.1 },
+  { asset: 'F-USDC', price: 1.00, change24h: 0.01 },
 ];
