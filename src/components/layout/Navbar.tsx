@@ -15,7 +15,7 @@ import { WalletConnect } from './WalletConnect';
 const navLinks = [
   { href: '/campaigns', label: 'Explore' },
   { href: '/create-campaign', label: 'Start a Campaign' },
-  { href: '/flare', label: 'About Flare' },
+  { href: '/flare', label: 'About' },
 ];
 
 const Logo = () => (

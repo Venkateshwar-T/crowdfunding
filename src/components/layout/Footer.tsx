@@ -14,7 +14,7 @@ const footerLinks = {
     { name: 'How it works', href: '/#how-it-works' },
   ],
   'About': [
-    { name: 'About Flare', href: '/flare' },
+    { name: 'About', href: '/flare' },
     { name: 'Terms of Service', href: '#' },
     { name: 'Privacy Policy', href: '#' },
   ],
