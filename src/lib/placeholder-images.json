@@ -1,3 +1,88 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-background",
+      "description": "Abstract blockchain network visualization",
+      "imageUrl": "https://images.unsplash.com/photo-1711831521065-e546a5aca68e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxibG9ja2NoYWluJTIwbmV0d29ya3xlbnwwfHx8fDE3NjQ5NzI3NjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "blockchain network"
+    },
+    {
+      "id": "campaign-1",
+      "description": "A futuristic gadget",
+      "imageUrl": "https://images.unsplash.com/photo-1565495055951-25a25e021cef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx0ZWNoJTIwZ2FkZ2V0fGVufDB8fHx8MTc2NDkxODI5Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tech gadget"
+    },
+    {
+      "id": "campaign-2",
+      "description": "An eco-friendly vertical farm",
+      "imageUrl": "https://images.unsplash.com/photo-1685203834233-d4726feaed3d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxncmVlbiUyMHRlY2hub2xvZ3l8ZW58MHx8fHwxNzY1MDE0MDg2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "green technology"
+    },
+    {
+      "id": "campaign-3",
+      "description": "An indie video game concept art",
+      "imageUrl": "https://images.unsplash.com/photo-1640955014216-75201056c829?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx2aWRlbyUyMGdhbWV8ZW58MHx8fHwxNzY1MDE0MDg2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "video game"
+    },
+    {
+      "id": "campaign-4",
+      "description": "Decentralized finance dashboard on a screen",
+      "imageUrl": "https://images.unsplash.com/photo-1642466121955-1f7ae4ee60f4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxkZWZpJTIwZmluYW5jZXxlbnwwfHx8fDE3NjUwMTQwODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "defi finance"
+    },
+    {
+      "id": "campaign-5",
+      "description": "Artist working in a studio",
+      "imageUrl": "https://images.unsplash.com/photo-1625765361596-d425d3c3eb96?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxhcnQlMjBzdHVkaW98ZW58MHx8fHwxNzY1MDE0MDg1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "art studio"
+    },
+    {
+      "id": "campaign-6",
+      "description": "Musician playing guitar on stage",
+      "imageUrl": "https://images.unsplash.com/photo-1600779547877-be592ef5aad3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxsaXZlJTIwbXVzaWN8ZW58MHx8fHwxNzY1MDA1MTU1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "live music"
+    },
+    {
+      "id": "user-avatar-1",
+      "description": "User avatar",
+      "imageUrl": "https://images.unsplash.com/photo-1644211891657-6e33dac9429a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwb3J0cmFpdCUyMHBlcnNvbnxlbnwwfHx8fDE3NjQ5OTczNzh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "portrait person"
+    },
+    {
+      "id": "user-avatar-2",
+      "description": "User avatar",
+      "imageUrl": "https://images.unsplash.com/photo-1546961329-78bef0414d7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2NDkwODIwMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "user-avatar-3",
+      "description": "User avatar",
+      "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtYW4lMjBwcm9maWxlfGVufDB8fHx8MTc2NDkxODU0MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man profile"
+    },
+    {
+      "id": "flare-fassets",
+      "description": "Image representing various cryptocurrencies",
+      "imageUrl": "https://images.unsplash.com/photo-1634024521600-0772a6b89fa8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjcnlwdG9jdXJyZW5jeSUyMGNvaW5zfGVufDB8fHx8MTc2NTAxNDA4Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cryptocurrency coins"
+    },
+    {
+      "id": "flare-fdc",
+      "description": "Image representing digital identity",
+      "imageUrl": "https://images.unsplash.com/photo-1500627965408-b5f2c8793f17?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxkaWdpdGFsJTIwaWRlbnRpdHl8ZW58MHx8fHwxNzY1MDE0MDg2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "digital identity"
+    },
+    {
+      "id": "flare-ftso",
+      "description": "Image representing data streams and oracles",
+      "imageUrl": "https://images.unsplash.com/photo-1663895064411-fff0ab8a9797?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxkYXRhJTIwc3RyZWFtfGVufDB8fHx8MTc2NDk3NDgxNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "data stream"
+    },
+    {
+      "id": "flare-smart-accounts",
+      "description": "Image representing smart contracts or code",
+      "imageUrl": "https://images.unsplash.com/photo-1550438496-8c6e269e7886?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjb2RlJTIwYWJzdHJhY3R8ZW58MHx8fHwxNzY0OTg1MzUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "code abstract"
+    }
+  ]
 }
