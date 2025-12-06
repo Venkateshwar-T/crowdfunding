@@ -9,7 +9,6 @@ export default function DashboardLayout({
     <div className="flex flex-col">
        <header className="flex h-16 items-center gap-4 border-b bg-background/95 px-6 sticky top-0 z-40">
           <Flame className="h-7 w-7 text-primary" />
-          <h1 className="text-lg font-semibold md:text-xl font-headline">Dashboard</h1>
       </header>
       <div className="p-4 md:p-8">{children}</div>
     </div>
