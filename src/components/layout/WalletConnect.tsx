@@ -21,9 +21,9 @@ export function WalletConnect() {
 
   if (!isConnected || !address) {
     return (
-      <Button onClick={openConnectModal} variant="outline">
-        <Wallet className="mr-2 h-4 w-4" />
-        Connect Wallet
+      <Button onClick={openConnectModal} variant="outline" size="icon" className="rounded-full">
+        <Wallet className="h-5 w-5" />
+        <span className="sr-only">Connect Wallet</span>
       </Button>
     );
   }
@@ -34,11 +34,11 @@ export function WalletConnect() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
-           <Avatar className="h-6 w-6">
+        <Button variant="outline" size="icon" className="rounded-full">
+           <Avatar className="h-8 w-8">
               <AvatarFallback>{address.slice(2, 4).toUpperCase()}</AvatarFallback>
            </Avatar>
-           <span className="font-mono">{shortAddress}</span>
+           <span className="sr-only">Open wallet menu</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
