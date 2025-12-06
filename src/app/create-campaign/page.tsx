@@ -54,7 +54,9 @@ export default function CreateCampaignPage() {
     defaultValues: {
       title: '',
       description: '',
+      category: '',
       fundingGoal: 1000,
+      deadline: '',
       requiresFdc: false,
       acceptedAssets: [],
       milestones: [],
@@ -211,7 +213,7 @@ export default function CreateCampaignPage() {
                                                     ? field.onChange([...(field.value || []), asset.symbol])
                                                     : field.onChange(
                                                         field.value?.filter(
-                                                        (value) => value !== asset.symbol
+                                                        (value: string) => value !== asset.symbol
                                                         )
                                                     )
                                                 }}

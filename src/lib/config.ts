@@ -3,7 +3,7 @@ import { flareTestnet } from 'wagmi/chains';
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 
 // IMPORTANT: Replace 'YOUR_PROJECT_ID' with your actual WalletConnect Project ID
-const projectId = 'YOUR_PROJECT_ID';
+const projectId = '065b9d9852130a72b187d8b590d0bc5e';
 
 export const config = getDefaultConfig({
   appName: 'Flarestarter',
