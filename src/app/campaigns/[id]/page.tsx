@@ -22,7 +22,6 @@ import { useToast } from "@/hooks/use-toast";
 import { FAssetIcon } from "@/components/shared/FAssetIcon";
 import { ProgressBar } from "@/components/shared/ProgressBar";
 import { PriceTicker } from "@/components/shared/PriceTicker";
-import { FtsoPriceGuidance } from "@/components/campaign/FtsoPriceGuidance";
 
 // Data & Types
 import { mockPriceFeeds } from "@/lib/mock-data";
@@ -302,7 +301,6 @@ export default function CampaignDetailPage() {
 
                 {/* Price & AI Guidance */}
                 {priceFeed && <PriceTicker feed={priceFeed} />}
-                {priceFeed && <FtsoPriceGuidance assetName={priceFeed.asset} currentPrice={priceFeed.price} fundingGoal={campaign.fundingGoal} />}
             </div>
         </div>
       </div>
