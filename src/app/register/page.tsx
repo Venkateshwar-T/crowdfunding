@@ -11,7 +11,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Flame } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
 
 export default function RegisterPage() {
   return (
@@ -49,12 +48,6 @@ export default function RegisterPage() {
             </Button>
             <Button variant="outline" className="w-full">
               Sign up with Google
-            </Button>
-          </div>
-          <Separator className="my-6" />
-          <div className="grid gap-4">
-            <Button variant="secondary" className="w-full">
-              Connect Web3 Wallet
             </Button>
           </div>
           <div className="mt-4 text-center text-sm">

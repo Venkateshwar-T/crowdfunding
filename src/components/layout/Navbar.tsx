@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Flame, Menu, Search, X } from 'lucide-react';
+import { Flame, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Separator } from '../ui/separator';
+import { ConnectWalletDialog } from '../shared/ConnectWalletDialog';
 
 const navLinks = [
   { href: '/campaigns', label: 'Explore' },
@@ -64,12 +65,9 @@ export default function Navbar() {
               </nav>
               <div className="mt-auto flex flex-col gap-4 p-6">
                 <Separator />
-                <Button asChild variant="outline">
-                  <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
-                </Button>
-                <Button asChild>
-                  <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
-                </Button>
+                <ConnectWalletDialog>
+                  <Button className="w-full" onClick={() => setIsMobileMenuOpen(false)}>Connect Wallet</Button>
+                </ConnectWalletDialog>
               </div>
             </div>
           </SheetContent>
@@ -95,18 +93,10 @@ export default function Navbar() {
           </div>
           
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-                <Search className="h-5 w-5" />
-                <span className="sr-only">Search</span>
-            </Button>
-            
             <div className='hidden sm:flex items-center gap-2'>
-              <Button variant="ghost" asChild>
-                  <Link href="/login">Login</Link>
-              </Button>
-              <Button asChild>
-                  <Link href="/register">Sign Up</Link>
-              </Button>
+              <ConnectWalletDialog>
+                  <Button>Connect Wallet</Button>
+              </ConnectWalletDialog>
             </div>
           </div>
         </div>

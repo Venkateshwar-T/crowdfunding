@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import { Flame } from "lucide-react"
 
 export default function LoginPage() {
@@ -53,12 +52,6 @@ export default function LoginPage() {
             </Button>
             <Button variant="outline" className="w-full">
               Login with Google
-            </Button>
-          </div>
-          <Separator className="my-6" />
-          <div className="grid gap-4">
-            <Button variant="secondary" className="w-full">
-              Connect Web3 Wallet
             </Button>
           </div>
           <div className="mt-4 text-center text-sm">
