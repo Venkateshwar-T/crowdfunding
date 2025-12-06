@@ -17,7 +17,7 @@ import { PlusCircle, Loader2, CalendarIcon } from 'lucide-react';
 import { FAssetIcon } from '@/components/shared/FAssetIcon';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { useToast } from '@/hooks/use-toast';
 import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
 import type { Abi } from 'viem';
@@ -26,6 +26,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
 
@@ -86,6 +87,8 @@ export default function CreateCampaignPage() {
   const [imageUrl, setImageUrl] = useState<string>("https://placehold.co/600x400/png");
   const [isOtherCategory, setIsOtherCategory] = useState(false);
 
+  const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
   const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess, error: receiptError } = useWaitForTransactionReceipt({ 
@@ -157,6 +160,11 @@ export default function CreateCampaignPage() {
   }
 
   const onSubmit = (data: CampaignFormValues) => {
+    if (!isConnected) {
+        openConnectModal?.();
+        return;
+    }
+
     const deadlineDate = new Date(data.deadline);
     const today = new Date();
     const durationDays = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
@@ -409,8 +417,10 @@ export default function CreateCampaignPage() {
                 <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deploying Campaign...
                 </>
-              ) : (
+              ) : isConnected ? (
                 'Create Campaign'
+              ) : (
+                'Connect Wallet to Create'
               )}
             </Button>
           </form>

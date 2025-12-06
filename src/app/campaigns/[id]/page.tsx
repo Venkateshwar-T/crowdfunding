@@ -29,12 +29,13 @@ import { type Campaign, type Creator } from "@/lib/types";
 import { useUser } from '@/firebase';
 
 // Blockchain
-import { useReadContracts, useWriteContract } from "wagmi";
+import { useAccount, useReadContracts, useWriteContract } from "wagmi";
 import CampaignABI from '@/lib/abi/Campaign.json';
 import { type Abi, formatEther, parseEther } from "viem";
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
 import type { User as FirebaseUser } from 'firebase/auth';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 // --- CONFIGURATION ---
 // MUST MATCH YOUR CREATE PAGE CONFIG
@@ -102,6 +103,8 @@ export default function CampaignDetailPage() {
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id; 
   const { toast } = useToast();
   const { user: currentUser } = useUser();
+  const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
 
   const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
   const [creatorInfo, setCreatorInfo] = useState<Creator | null>(null);
@@ -214,6 +217,10 @@ export default function CampaignDetailPage() {
 
   // --- HANDLE CONTRIBUTE ---
   const handleContribute = async () => {
+    if (!isConnected) {
+        openConnectModal?.();
+        return;
+    }
     if (!amount || !selectedAssetSymbol || !id) return;
     
     const assetAddress = MOCK_TOKENS[selectedAssetSymbol];
@@ -383,7 +390,7 @@ export default function CampaignDetailPage() {
                     </div>
 
                     <Button className="w-full" size="lg" onClick={handleContribute} disabled={isApproving || !amount}>
-                      {isApproving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Approving...</> : "Donate Now"}
+                      {isApproving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Approving...</> : (isConnected ? 'Donate Now' : 'Connect Wallet to Donate')}
                     </Button>
                   </CardContent>
                 </Card>
