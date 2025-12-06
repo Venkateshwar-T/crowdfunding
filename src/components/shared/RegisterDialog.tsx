@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { CheckCircle, Circle, Wallet, ShieldCheck } from 'lucide-react';
+import { CheckCircle, Circle, Wallet, ShieldCheck, LogIn } from 'lucide-react';
 import { useUser, useAuth } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
@@ -56,10 +56,17 @@ export function RegisterDialog({ onRegister }: RegisterDialogProps) {
   const isStep1Complete = !!user;
   const isStep2Complete = isConnected;
 
+  const TriggerButton = () => (
+     <Button variant="outline" className="w-full">
+        <LogIn className="mr-2 h-4 w-4" />
+        Register / Sign In
+    </Button>
+  )
+
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
-        <Button variant="outline">Register / Sign In</Button>
+        <TriggerButton />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -84,8 +91,9 @@ export function RegisterDialog({ onRegister }: RegisterDialogProps) {
                     onClick={handleGoogleSignIn} 
                     disabled={isStep1Complete || loading}
                     variant={isStep1Complete ? "secondary" : "default"}
+                    className='w-[120px]'
                 >
-                    {isStep1Complete ? 'Signed In' : 'Sign In'}
+                    {loading ? "..." : isStep1Complete ? 'Signed In' : 'Sign In'}
                     {!isStep1Complete && <ShieldCheck className="ml-2 h-4 w-4" />}
                 </Button>
             </div>
@@ -105,6 +113,7 @@ export function RegisterDialog({ onRegister }: RegisterDialogProps) {
                     onClick={handleConnectWallet} 
                     disabled={isStep2Complete}
                     variant={isStep2Complete ? "secondary" : "default"}
+                    className='w-[120px]'
                 >
                     {isStep2Complete ? 'Connected' : 'Connect'}
                      {!isStep2Complete && <Wallet className="ml-2 h-4 w-4" />}
