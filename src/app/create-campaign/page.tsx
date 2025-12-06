@@ -49,6 +49,7 @@ const campaignFormSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
   description: z.string().min(20, 'Description must be at least 20 characters'),
   category: z.string().min(1, 'Please select a category'),
+  otherCategory: z.string().optional(),
   fundingGoal: z.coerce.number().min(1, 'Funding goal must be at least 1'),
   deadline: z.date({
     required_error: "A deadline date is required.",
@@ -57,11 +58,19 @@ const campaignFormSchema = z.object({
   milestones: z.array(milestoneSchema).optional(),
   requiresFdc: z.boolean().default(false),
   acceptedAssets: z.array(z.string()).min(1, 'Select at least one asset'),
+}).refine(data => {
+    if (data.category === 'Other') {
+        return !!data.otherCategory && data.otherCategory.length > 0;
+    }
+    return true;
+}, {
+    message: 'Please specify the category name',
+    path: ['otherCategory'],
 });
 
 export type CampaignFormValues = z.infer<typeof campaignFormSchema>;
 
-const categories = ['Tech', 'Medical', 'DeFi', 'Gaming'];
+const categories = ['Tech', 'Medical', 'DeFi', 'Gaming', 'Other'];
 
 const availableAssets = [
     { symbol: 'F-BTC', name: 'Flare BTC' },
@@ -75,6 +84,7 @@ export default function CreateCampaignPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [imageUrl, setImageUrl] = useState<string>("https://placehold.co/600x400/png");
+  const [isOtherCategory, setIsOtherCategory] = useState(false);
 
   const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
   
@@ -88,6 +98,7 @@ export default function CreateCampaignPage() {
       title: '',
       description: '',
       category: '',
+      otherCategory: '',
       fundingGoal: 1000,
       requiresFdc: false,
       acceptedAssets: [],
@@ -155,12 +166,13 @@ export default function CreateCampaignPage() {
         return;
     }
 
-    // WORKAROUND: Only send the first selected asset due to a bug in the factory contract
     const firstTicker = data.acceptedAssets[0];
     const firstAddress = MOCK_TOKENS[firstTicker] || "0x0000000000000000000000000000000000000000";
 
     const selectedTickers = [firstTicker];
     const selectedAddresses = [firstAddress];
+    
+    const category = data.category === 'Other' ? data.otherCategory : data.category;
 
     writeContract({
         address: FACTORY_ADDRESS as `0x${string}`,
@@ -170,7 +182,7 @@ export default function CreateCampaignPage() {
             data.title,
             data.description,
             imageUrl,
-            data.category,
+            category,
             BigInt(data.fundingGoal) * BigInt(10**18),
             BigInt(durationDays),
             data.requiresFdc,
@@ -215,7 +227,10 @@ export default function CreateCampaignPage() {
                     <FormField name="category" control={form.control} render={({ field }) => (
                         <FormItem>
                             <FormLabel>Category</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={(value) => {
+                                field.onChange(value);
+                                setIsOtherCategory(value === 'Other');
+                            }} defaultValue={field.value}>
                                 <FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl>
                                 <SelectContent>
                                     {categories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
@@ -224,6 +239,15 @@ export default function CreateCampaignPage() {
                             <FormMessage />
                         </FormItem>
                     )} />
+                    {isOtherCategory && (
+                        <FormField name="otherCategory" control={form.control} render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Other Category Name</FormLabel>
+                                <FormControl><Input placeholder="e.g. Education" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                    )}
                 </CardContent>
             </Card>
 
@@ -395,3 +419,5 @@ export default function CreateCampaignPage() {
     </div>
   );
 }
+
+    

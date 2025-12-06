@@ -30,7 +30,7 @@ export type Campaign = {
   fundingGoal: number;
   currentFunding: number;
   deadline: string;
-  category: 'Tech' | 'Medical' | 'DeFi' | 'Gaming';
+  category: string;
   status: CampaignStatus;
   acceptedAssets: FAsset[];
   milestones: Milestone[];
@@ -64,3 +64,5 @@ export type PriceFeed = {
   price: number;
   change24h: number;
 };
+
+    

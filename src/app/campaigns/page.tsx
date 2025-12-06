@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -20,7 +21,7 @@ import { type Campaign } from '@/lib/types';
 // --- REPLACE WITH YOUR REAL FACTORY ADDRESS ---
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
 
-const categories = ['All', 'Tech', 'Medical', 'DeFi', 'Gaming'];
+const categories = ['All', 'Tech', 'Medical', 'DeFi', 'Gaming', 'Other'];
 const statuses = ['All', 'active', 'successful', 'expired'];
 
 export default function ExploreCampaignsPage() {
@@ -71,7 +72,7 @@ export default function ExploreCampaignsPage() {
                 description: "Blockchain Campaign",
                 imageUrl: campaignData[base + 1].result as string || "https://placehold.co/600x400",
                 imageHint: "blockchain project",
-                category: (campaignData[base + 2].result as string || "Tech") as Campaign['category'],
+                category: (campaignData[base + 2].result as string || "Tech"),
                 currentFunding: Number(formatEther(currentFundingWei)),
                 fundingGoal: Number(formatEther(goalWei)),
                 deadline: new Date(deadlineSeconds * 1000).toISOString(),
@@ -225,3 +226,5 @@ export default function ExploreCampaignsPage() {
     </div>
   );
 }
+
+    
