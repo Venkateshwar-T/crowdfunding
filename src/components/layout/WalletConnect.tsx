@@ -34,8 +34,8 @@ export function WalletConnect() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="rounded-full">
-           <Wallet className="h-5 w-5 text-primary" />
+        <Button variant="outline" size="icon" className="rounded-full group">
+           <Wallet className="h-5 w-5 text-primary group-hover:text-primary-foreground" />
            <span className="sr-only">Open wallet menu</span>
         </Button>
       </DropdownMenuTrigger>
