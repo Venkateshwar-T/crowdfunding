@@ -35,9 +35,7 @@ export function WalletConnect() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="rounded-full">
-           <Avatar className="h-8 w-8 bg-primary">
-              <AvatarFallback className="bg-primary text-primary-foreground">{address.slice(2, 4).toUpperCase()}</AvatarFallback>
-           </Avatar>
+           <Wallet className="h-5 w-5" />
            <span className="sr-only">Open wallet menu</span>
         </Button>
       </DropdownMenuTrigger>
