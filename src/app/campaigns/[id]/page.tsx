@@ -211,6 +211,13 @@ export default function CampaignDetailPage() {
             <div className="space-y-4">
               <Badge variant="secondary">{campaign.category}</Badge>
               <h1 className="font-headline text-4xl font-bold">{campaign.title}</h1>
+               <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>Created by</span>
+                    <span className="font-semibold text-foreground flex items-center gap-2">
+                        <Avatar className="h-6 w-6"><AvatarFallback>CR</AvatarFallback></Avatar>
+                        {campaign.creator.name}
+                    </span>
+                </div>
             </div>
 
             <div className="relative h-96 w-full rounded-xl overflow-hidden shadow-lg border">
@@ -260,16 +267,6 @@ export default function CampaignDetailPage() {
                         </div>
                     </CardContent>
                 </Card>
-
-                <div>
-                  <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
-                    <span>Created by</span>
-                    <span className="font-semibold text-foreground flex items-center gap-2">
-                        <Avatar className="h-6 w-6"><AvatarFallback>CR</AvatarFallback></Avatar>
-                        {campaign.creator.name}
-                    </span>
-                  </div>
-                </div>
 
                 <Card className="border-primary/20 shadow-md">
                   <CardHeader><CardTitle>Contribute</CardTitle></CardHeader>
