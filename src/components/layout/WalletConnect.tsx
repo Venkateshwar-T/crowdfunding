@@ -11,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { LogOut, Wallet } from 'lucide-react';
 
 export function WalletConnect() {
@@ -21,9 +20,9 @@ export function WalletConnect() {
 
   if (!isConnected || !address) {
     return (
-      <Button onClick={openConnectModal} variant="outline" size="icon" className="rounded-full">
-        <Wallet className="h-5 w-5" />
-        <span className="sr-only">Connect Wallet</span>
+      <Button onClick={openConnectModal} variant="outline">
+        <Wallet className="mr-2 h-5 w-5" />
+        Connect Wallet
       </Button>
     );
   }
