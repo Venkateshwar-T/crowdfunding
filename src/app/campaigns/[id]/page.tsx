@@ -203,15 +203,18 @@ export default function CampaignDetailPage() {
 
   return (
     <div className="bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="space-y-8">
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-8">
             {/* Image */}
             <div className="relative h-96 w-full rounded-xl overflow-hidden shadow-lg border">
               <Image src={campaign.imageUrl} alt={campaign.title} fill className="object-cover" />
             </div>
 
-            {/* Header Info */}
-            <div>
+            {/* Story */}
+             <div className="lg:hidden">
               <Badge variant="secondary">{campaign.category}</Badge>
               <h1 className="font-headline text-4xl font-bold mt-2">{campaign.title}</h1>
               <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
@@ -223,86 +226,110 @@ export default function CampaignDetailPage() {
               </div>
             </div>
 
-            {/* Funding Progress */}
             <Card>
-                <CardContent className="pt-6">
-                    <ProgressBar current={campaign.currentFunding} goal={campaign.fundingGoal} />
-                    <div className="grid grid-cols-3 gap-4 text-center mt-4">
-                        <div><p className="text-2xl font-bold">${campaign.currentFunding.toLocaleString()}</p><p className="text-xs text-muted-foreground">Raised</p></div>
-                        <div><p className="text-2xl font-bold">${campaign.fundingGoal.toLocaleString()}</p><p className="text-xs text-muted-foreground">Goal</p></div>
-                        <div><p className="text-2xl font-bold">{daysLeft}</p><p className="text-xs text-muted-foreground">Days Left</p></div>
-                    </div>
+                <CardHeader>
+                    <CardTitle>Story</CardTitle>
+                </CardHeader>
+                <CardContent className="prose dark:prose-invert max-w-none">
+                    <p>{campaign.description}</p>
                 </CardContent>
             </Card>
+          </div>
 
-            {/* Contribution Section */}
-            <Card className="border-primary/20 shadow-md">
-              <CardHeader><CardTitle>Contribute</CardTitle></CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Select Asset</label>
-                  <Select value={selectedAssetSymbol} onValueChange={setSelectedAssetSymbol}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Token" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {campaign.acceptedAssets.map(a => (
-                        <SelectItem key={a.symbol} value={a.symbol}>
-                          <div className="flex items-center gap-2">
-                            <FAssetIcon asset={a.symbol as any} /> {a.symbol}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+          {/* Right Column */}
+          <div className="relative">
+             <div className="lg:sticky lg:top-24 space-y-6">
+                <div className="hidden lg:block">
+                  <Badge variant="secondary">{campaign.category}</Badge>
+                  <h1 className="font-headline text-3xl font-bold mt-2">{campaign.title}</h1>
+                  <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
+                    <span>Created by</span>
+                    <span className="font-semibold text-foreground flex items-center gap-2">
+                        <Avatar className="h-6 w-6"><AvatarFallback>CR</AvatarFallback></Avatar>
+                        {campaign.creator.name}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                      <label className="text-sm font-medium">Amount</label>
-                      <div className="relative">
-                        <Input 
-                          type="number" 
-                          placeholder="0.00" 
-                          value={amount} 
-                          onChange={(e) => setAmount(e.target.value)} 
-                          className="pr-16"
-                        />
-                        <div className="absolute right-3 top-2.5 text-sm text-muted-foreground">
-                          {selectedAssetSymbol}
-                        </div>
-                      </div>
-                      <p className="text-xs text-right text-muted-foreground">≈ ${estUsdValue} USD</p>
-                </div>
-
-                <Button className="w-full" size="lg" onClick={handleContribute} disabled={isApproving || !amount}>
-                  {isApproving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Approving...</> : "Donate Now"}
-                </Button>
-              </CardContent>
-            </Card>
-            
-            {priceFeed && <PriceTicker feed={priceFeed} />}
-
-            {/* Story & Milestones */}
-            <Tabs defaultValue="story" className="w-full">
-              <TabsList>
-                <TabsTrigger value="story">Story</TabsTrigger>
-                <TabsTrigger value="milestones">Milestones</TabsTrigger>
-              </TabsList>
-              <TabsContent value="story">
                 <Card>
-                  <CardContent className="pt-6 prose dark:prose-invert max-w-none">
-                    <p>{campaign.description}</p>
+                    <CardContent className="pt-6">
+                        <ProgressBar current={campaign.currentFunding} goal={campaign.fundingGoal} />
+                        <div className="grid grid-cols-3 gap-4 text-center mt-4">
+                            <div><p className="text-2xl font-bold">${campaign.currentFunding.toLocaleString()}</p><p className="text-xs text-muted-foreground">Raised</p></div>
+                            <div><p className="text-2xl font-bold">${campaign.fundingGoal.toLocaleString()}</p><p className="text-xs text-muted-foreground">Goal</p></div>
+                            <div><p className="text-2xl font-bold">{daysLeft}</p><p className="text-xs text-muted-foreground">Days Left</p></div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="border-primary/20 shadow-md">
+                  <CardHeader><CardTitle>Contribute</CardTitle></CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Select Asset</label>
+                      <Select value={selectedAssetSymbol} onValueChange={setSelectedAssetSymbol}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Token" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {campaign.acceptedAssets.map(a => (
+                            <SelectItem key={a.symbol} value={a.symbol}>
+                              <div className="flex items-center gap-2">
+                                <FAssetIcon asset={a.symbol as any} /> {a.symbol}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                          <label className="text-sm font-medium">Amount</label>
+                          <div className="relative">
+                            <Input 
+                              type="number" 
+                              placeholder="0.00" 
+                              value={amount} 
+                              onChange={(e) => setAmount(e.target.value)} 
+                              className="pr-16"
+                            />
+                            <div className="absolute right-3 top-2.5 text-sm text-muted-foreground">
+                              {selectedAssetSymbol}
+                            </div>
+                          </div>
+                          <p className="text-xs text-right text-muted-foreground">≈ ${estUsdValue} USD</p>
+                    </div>
+
+                    <Button className="w-full" size="lg" onClick={handleContribute} disabled={isApproving || !amount}>
+                      {isApproving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Approving...</> : "Donate Now"}
+                    </Button>
                   </CardContent>
                 </Card>
-              </TabsContent>
-              <TabsContent value="milestones">
-                  <Card>
-                    <CardContent className="pt-6 text-center text-muted-foreground">
-                      Milestones are managed on-chain.
-                    </CardContent>
-                  </Card>
-              </TabsContent>
-            </Tabs>
+                
+                {priceFeed && <PriceTicker feed={priceFeed} />}
+
+                 <Tabs defaultValue="milestones" className="w-full">
+                    <TabsList>
+                        <TabsTrigger value="milestones">Milestones</TabsTrigger>
+                        <TabsTrigger value="updates">Updates</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="milestones">
+                        <Card>
+                            <CardContent className="pt-6 text-center text-muted-foreground">
+                            Milestones are managed on-chain.
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="updates">
+                        <Card>
+                            <CardContent className="pt-6 text-center text-muted-foreground">
+                            No updates yet.
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
+             </div>
+          </div>
         </div>
       </div>
     </div>
