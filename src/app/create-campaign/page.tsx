@@ -1,4 +1,5 @@
 'use client';
+
 import { z } from 'zod';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,10 +12,28 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileUpload } from '@/components/shared/FileUpload';
 import { MilestoneCard } from '@/components/shared/MilestoneCard';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Loader2 } from 'lucide-react';
 import { FAssetIcon } from '@/components/shared/FAssetIcon';
 import { mockCampaigns } from '@/lib/mock-data';
 import { Checkbox } from '@/components/ui/checkbox';
+
+// --- NEW IMPORTS FOR BLOCKCHAIN ---
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useToast } from '@/hooks/use-toast';
+import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
+
+// --- CONFIGURATION CONSTANTS (REPLACE THESE!) ---
+const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
+
+// Map the symbols in your dropdown to the Mock Token addresses you deployed in Remix
+const MOCK_TOKENS: Record<string, string> = {
+    'F-BTC': "0x76E4b5DDD42BD84161f7f298D35723FbC576e861",
+    'F-XRP': "0xBAf7dE33f98B018055EA5aCDfBDcA9be11780d06",
+    'F-DOGE': "0x0000000000000000000000000000000000000000", // Dummy if not deployed
+    'F-LTC': "0x0000000000000000000000000000000000000000", // Dummy if not deployed
+};
 
 const milestoneSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -49,6 +68,16 @@ const availableAssets = [
 ];
 
 export default function CreateCampaignPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+
+  // --- WAGMI HOOKS ---
+  const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
+  
+  const { isLoading: isConfirming, isSuccess, error: receiptError } = useWaitForTransactionReceipt({ 
+    hash 
+  });
+
   const form = useForm<CampaignFormValues>({
     resolver: zodResolver(campaignFormSchema),
     defaultValues: {
@@ -68,9 +97,64 @@ export default function CreateCampaignPage() {
     name: 'milestones',
   });
 
+  // --- FEEDBACK LOGIC ---
+  useEffect(() => {
+    if (isSuccess) {
+      toast({
+        title: "Campaign Created Successfully! 🚀",
+        description: "Your Smart Account has been deployed to the Flare Network.",
+        variant: "default", // You might want to create a 'success' variant in toast.tsx or use default
+        className: "bg-green-100 border-green-500 text-green-900"
+      });
+      // Small delay before redirect so user sees the success
+      setTimeout(() => router.push('/dashboard'), 2000);
+    }
+    if (writeError || receiptError) {
+      toast({
+        title: "Transaction Failed",
+        description: (writeError?.message || receiptError?.message)?.slice(0, 100) + "...",
+        variant: "destructive",
+      });
+    }
+  }, [isSuccess, writeError, receiptError, toast, router]);
+
+
+  // --- SUBMIT LOGIC ---
   const onSubmit = (data: CampaignFormValues) => {
-    console.log(data);
-    // Here you would typically send data to a backend or smart contract
+    console.log("Submitting...", data);
+
+    // 1. Calculate duration
+    const deadlineDate = new Date(data.deadline);
+    const today = new Date();
+    const durationDays = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+
+    if (durationDays <= 0) {
+        toast({ title: "Invalid Date", description: "Deadline must be in the future", variant: "destructive" });
+        return;
+    }
+
+    // 2. Prepare Assets
+    // Filter out assets that we don't have mock addresses for, or use the dummy ones
+    const selectedTickers = data.acceptedAssets;
+    const selectedAddresses = selectedTickers.map(ticker => MOCK_TOKENS[ticker] || "0x0000000000000000000000000000000000000000");
+
+    // 3. Send Transaction
+    writeContract({
+        address: FACTORY_ADDRESS as `0x${string}`,
+        abi: FactoryABI,
+        functionName: 'createCampaign',
+        args: [
+            data.title,
+            data.description,
+            "https://placehold.co/600x400/png", // Placeholder image until Firebase Storage is hooked up
+            data.category,
+            BigInt(data.fundingGoal) * BigInt(10**18), // Assuming 18 decimals for USD goal
+            BigInt(durationDays),
+            data.requiresFdc,
+            selectedAddresses,
+            selectedTickers
+        ],
+    });
   };
 
   return (
@@ -235,8 +319,18 @@ export default function CreateCampaignPage() {
                 </CardContent>
             </Card>
 
-            <Button type="submit" size="lg" className="w-full">
-              Create Campaign
+            <Button type="submit" size="lg" className="w-full" disabled={isPending || isConfirming}>
+              {isPending ? (
+                <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Confirm in Wallet...
+                </>
+              ) : isConfirming ? (
+                <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deploying Campaign...
+                </>
+              ) : (
+                'Create Campaign'
+              )}
             </Button>
           </form>
         </Form>
@@ -244,3 +338,5 @@ export default function CreateCampaignPage() {
     </div>
   );
 }
+
+    
