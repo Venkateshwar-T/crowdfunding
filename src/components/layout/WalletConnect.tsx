@@ -1,6 +1,6 @@
 'use client';
 
-import { useAccount, useDisconnect } from 'wagmi';
+import { useAccount, useDisconnect, useBalance } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,12 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, Wallet } from 'lucide-react';
+import { LogOut, Wallet, Landmark } from 'lucide-react';
 
 export function WalletConnect() {
   const { address, isConnected, connector } = useAccount();
   const { openConnectModal } = useConnectModal();
   const { disconnect } = useDisconnect();
+  const { data: balance } = useBalance({ address });
 
   if (!isConnected || !address) {
     return (
@@ -34,11 +35,11 @@ export function WalletConnect() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="rounded-full">
-           <Wallet className="h-5 w-5" />
+           <Wallet className="h-5 w-5 text-primary" />
            <span className="sr-only">Open wallet menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel>My Wallet</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem disabled>
@@ -47,6 +48,15 @@ export function WalletConnect() {
                 <span className="font-mono text-sm">{shortAddress}</span>
             </div>
         </DropdownMenuItem>
+        {balance && (
+            <DropdownMenuItem>
+                <Landmark className="mr-2 h-4 w-4" />
+                <div className="flex flex-col">
+                     <span className="text-xs text-muted-foreground">Balance</span>
+                     <span>{balance.formatted} {balance.symbol}</span>
+                </div>
+            </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => disconnect()}>
           <LogOut className="mr-2 h-4 w-4" />
