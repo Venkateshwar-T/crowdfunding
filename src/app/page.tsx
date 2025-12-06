@@ -12,7 +12,7 @@ import { useReadContract, useReadContracts } from 'wagmi';
 import { formatEther, type Abi } from 'viem';
 import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
 import CampaignABI from '@/lib/abi/Campaign.json';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { type Campaign } from '@/lib/types';
 
 
@@ -52,8 +52,9 @@ function FeaturedCampaigns() {
     abi: CampaignABI as Abi,
   } as const;
   
-  // We only want the latest 5 campaigns for the homepage
-  const addresses = ((campaignAddresses as string[]) || []).slice(-5).reverse();
+  const addresses = useMemo(() => {
+    return ((campaignAddresses as string[]) || []).slice(-5).reverse();
+  }, [campaignAddresses]);
 
   const contracts = addresses.map((addr) => [
     { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'title' },
