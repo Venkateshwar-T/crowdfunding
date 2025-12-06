@@ -28,8 +28,14 @@ import { type Campaign } from "@/lib/types";
 import { useEffect, useState } from "react";
 
 export default function CampaignDetailPage({ params }: { params: { id: string } }) {
-  const id = params.id;
+  const [id, setId] = useState<string | null>(null);
   const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
+
+  useEffect(() => {
+    if (params.id) {
+        setId(params.id);
+    }
+  }, [params.id]);
 
   // --- BLOCKCHAIN DATA FETCHING ---
   const campaignContractConfig = {
@@ -49,10 +55,11 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
       { ...campaignContractConfig, functionName: 'description' },
       { ...campaignContractConfig, functionName: 'getDetails' }, // Fetches tickers
     ],
-    query: { enabled: id.startsWith('0x') } // Only run for blockchain addresses
+    query: { enabled: !!id && id.startsWith('0x') } // Only run for blockchain addresses
   });
 
   useEffect(() => {
+    if (!id) return;
     let foundCampaign = mockCampaigns.find((c) => c.id === id) || null;
 
     if (!foundCampaign && campaignData) {
@@ -94,7 +101,7 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
      setCampaign(foundCampaign);
   }, [campaignData, id]);
 
-  if (isLoadingBlockchain || campaign === undefined) {
+  if (isLoadingBlockchain || campaign === undefined || !id) {
     return (
         <div className="w-full h-[80vh] flex items-center justify-center">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -172,6 +179,7 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
                                 <div key={stat.label}>
                                     <p className="text-2xl font-bold">{stat.value}</p>
                                     <p className="text-sm text-muted-foreground">{stat.label}</p>
+
                                 </div>
                             ))}
                         </div>
