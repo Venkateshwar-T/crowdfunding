@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Flame } from "lucide-react"
+import { HandCoins } from "lucide-react"
 
 export default function LoginPage() {
   return (
@@ -18,7 +18,7 @@ export default function LoginPage() {
       <Card className="mx-auto max-w-sm w-full">
         <CardHeader>
           <CardTitle className="text-2xl font-headline flex items-center gap-2">
-            <Flame className="h-6 w-6" /> Login to CrowdFund
+            <HandCoins className="h-6 w-6" /> Login to CrowdFund
           </CardTitle>
           <CardDescription>
             Enter your email below to login to your account

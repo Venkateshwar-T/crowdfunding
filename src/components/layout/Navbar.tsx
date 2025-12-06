@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Flame, Menu } from 'lucide-react';
+import { HandCoins, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ const navLinks = [
 
 const Logo = () => (
     <Link href="/" className="flex items-center gap-2">
-        <Flame className="h-7 w-7 text-primary" />
+        <HandCoins className="h-7 w-7 text-primary" />
         <span className="font-headline text-xl font-bold tracking-tight">CrowdFund</span>
     </Link>
 );
