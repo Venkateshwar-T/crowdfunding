@@ -129,13 +129,6 @@ export default function ExploreCampaignsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-12">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold">Explore Campaigns</h1>
-        <p className="mt-2 text-lg text-muted-foreground">
-          Find and support the next wave of innovation on the Flare Network.
-        </p>
-      </div>
-
       <div className="flex flex-col md:flex-row gap-8">
         <aside className="w-full md:w-1/4 lg:w-1/5">
           <Card>
