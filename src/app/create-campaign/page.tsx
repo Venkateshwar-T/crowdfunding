@@ -15,9 +15,7 @@ import { FileUpload } from '@/components/shared/FileUpload';
 import { MilestoneCard } from '@/components/shared/MilestoneCard';
 import { PlusCircle, Loader2, CalendarIcon } from 'lucide-react';
 import { FAssetIcon } from '@/components/shared/FAssetIcon';
-import { mockCampaigns } from '@/lib/mock-data';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useToast } from '@/hooks/use-toast';
@@ -27,6 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useEffect } from 'react';
 
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
 
@@ -62,10 +61,7 @@ const campaignFormSchema = z.object({
 
 export type CampaignFormValues = z.infer<typeof campaignFormSchema>;
 
-const categories = mockCampaigns.reduce((acc, c) => {
-    if (!acc.includes(c.category)) acc.push(c.category);
-    return acc;
-}, [] as string[]);
+const categories = ['Tech', 'Art', 'Music', 'DeFi', 'Gaming'];
 
 const availableAssets = [
     { symbol: 'F-BTC', name: 'Flare BTC' },

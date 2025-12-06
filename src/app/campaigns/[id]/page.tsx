@@ -1,37 +1,31 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { notFound, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
 import { differenceInDays } from "date-fns";
-import { 
-  Clock, Users, Target, Calendar, CheckCircle, 
-  GitCommit, FileText, Loader2, AlertTriangle 
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 // UI Components
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 // Shared Components
-import { VerifiedBadge } from "@/components/shared/VerifiedBadge";
 import { FAssetIcon } from "@/components/shared/FAssetIcon";
 import { ProgressBar } from "@/components/shared/ProgressBar";
 import { PriceTicker } from "@/components/shared/PriceTicker";
 import { FtsoPriceGuidance } from "@/components/campaign/FtsoPriceGuidance";
 
 // Data & Types
-import { mockCampaigns, mockPriceFeeds } from "@/lib/mock-data";
+import { mockPriceFeeds } from "@/lib/mock-data";
 import { type Campaign } from "@/lib/types";
 
 // Blockchain
@@ -104,15 +98,7 @@ export default function CampaignDetailPage() {
   useEffect(() => {
     if (!id) return;
 
-    // Check Mock Data First
-    const mockFound = mockCampaigns.find((c) => c.id === id);
-    if (mockFound) {
-        setCampaign(mockFound);
-        setSelectedAssetSymbol(mockFound.acceptedAssets[0]?.symbol || '');
-        return;
-    }
-
-    // Check Blockchain Data
+    // Blockchain Data is the source of truth
     if (isBlockchainId && campaignData) {
         const [titleRes, imgRes, catRes, currRes, goalRes, deadRes, creatorRes, descRes, detailsRes] = campaignData;
 

@@ -1,12 +1,22 @@
+'use client';
+
 import Link from 'next/link';
-import { ArrowRight, CheckCircle, Cpu, Droplets, Fingerprint, Users } from 'lucide-react';
+import { ArrowRight, Cpu, Droplets, Fingerprint, Loader2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
-import { mockCampaigns } from '@/lib/mock-data';
 import { CampaignCard } from '@/components/shared/CampaignCard';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { GlassContainer } from '@/components/shared/GlassContainer';
+import { useReadContract, useReadContracts } from 'wagmi';
+import { formatEther, type Abi } from 'viem';
+import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
+import CampaignABI from '@/lib/abi/Campaign.json';
+import { useEffect, useState } from 'react';
+import { type Campaign } from '@/lib/types';
+
+
+const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
 
 const featureCards = [
   {
@@ -30,6 +40,117 @@ const featureCards = [
     description: 'Each campaign gets a smart account for decentralized, rule-based fund management.',
   },
 ];
+
+function FeaturedCampaigns() {
+  const { data: campaignAddresses } = useReadContract({
+    address: FACTORY_ADDRESS as `0x${string}`,
+    abi: FactoryABI as Abi,
+    functionName: 'getDeployedCampaigns',
+  });
+
+  const campaignsContractConfig = {
+    abi: CampaignABI as Abi,
+  } as const;
+  
+  // We only want the latest 5 campaigns for the homepage
+  const addresses = ((campaignAddresses as string[]) || []).slice(-5).reverse();
+
+  const contracts = addresses.map((addr) => [
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'title' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'imageUrl' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'category' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'currentFundingUSD' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'fundingGoalUSD' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'deadline' },
+    { ...campaignsContractConfig, address: addr as `0x${string}`, functionName: 'creator' },
+  ]).flat();
+
+  const { data: campaignData, isLoading: isLoadingBlockchain } = useReadContracts({
+    contracts: contracts,
+    query: { enabled: addresses.length > 0 }
+  });
+
+  const [realCampaigns, setRealCampaigns] = useState<Campaign[]>([]);
+
+  useEffect(() => {
+    if (campaignData && addresses.length > 0) {
+      const campaigns: Campaign[] = [];
+      
+      for (let i = 0; i < addresses.length; i++) {
+        const base = i * 7;
+        
+        if (campaignData[base]?.status === 'success') {
+            const currentFundingWei = campaignData[base + 3]?.result as bigint || BigInt(0);
+            const goalWei = campaignData[base + 4]?.result as bigint || BigInt(0);
+            const deadlineSeconds = Number(campaignData[base + 5]?.result || 0);
+
+            campaigns.push({
+                id: addresses[i],
+                title: campaignData[base].result as string || "Untitled",
+                description: "Blockchain Campaign",
+                imageUrl: campaignData[base + 1].result as string || "https://placehold.co/600x400",
+                imageHint: "blockchain project",
+                category: (campaignData[base + 2].result as string || "Tech") as Campaign['category'],
+                currentFunding: Number(formatEther(currentFundingWei)),
+                fundingGoal: Number(formatEther(goalWei)),
+                deadline: new Date(deadlineSeconds * 1000).toISOString(),
+                creator: { 
+                    id: "creator-chain",
+                    name: (campaignData[base + 6].result as string)?.slice(0, 6) + "...", 
+                    avatarUrl: "https://placehold.co/100", 
+                    isVerified: false 
+                },
+                status: 'active',
+                acceptedAssets: [], 
+                milestones: [],
+                requiresFdc: false
+            });
+        }
+      }
+      setRealCampaigns(campaigns);
+    }
+  }, [campaignData, addresses]);
+
+  if (isLoadingBlockchain) {
+    return (
+      <div className="w-full flex justify-center py-8 text-muted-foreground">
+        <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading Latest Campaigns...
+      </div>
+    );
+  }
+
+  if (realCampaigns.length === 0) {
+    return (
+       <div className="text-center py-16 col-span-full">
+          <p className="text-muted-foreground">No featured campaigns available yet. Be the first to create one!</p>
+      </div>
+    )
+  }
+
+  return (
+     <Carousel
+        opts={{
+          align: 'start',
+          loop: true,
+        }}
+        className="w-full"
+      >
+        <CarouselContent>
+          {realCampaigns.map((campaign) => (
+            <CarouselItem key={campaign.id} className="md:basis-1/2 lg:basis-1/3">
+              <div className="p-1">
+                <CampaignCard campaign={campaign} />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="ml-14" />
+        <CarouselNext className="mr-14" />
+      </Carousel>
+  )
+
+}
+
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find((img) => img.id === 'hero-background');
@@ -98,25 +219,7 @@ export default function Home() {
               Discover and back the most innovative projects on the Flare Network.
             </p>
           </div>
-          <Carousel
-            opts={{
-              align: 'start',
-              loop: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent>
-              {mockCampaigns.slice(0, 5).map((campaign) => (
-                <CarouselItem key={campaign.id} className="md:basis-1/2 lg:basis-1/3">
-                  <div className="p-1">
-                    <CampaignCard campaign={campaign} />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="ml-14" />
-            <CarouselNext className="mr-14" />
-          </Carousel>
+          <FeaturedCampaigns />
         </div>
       </section>
     </div>

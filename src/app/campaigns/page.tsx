@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { CampaignCard } from '@/components/shared/CampaignCard';
-import { mockCampaigns } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -16,6 +15,7 @@ import { useReadContract, useReadContracts } from 'wagmi';
 import { formatEther, type Abi } from 'viem';
 import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
 import CampaignABI from '@/lib/abi/Campaign.json';
+import { type Campaign } from '@/lib/types';
 
 // --- REPLACE WITH YOUR REAL FACTORY ADDRESS ---
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
@@ -26,7 +26,7 @@ const statuses = ['All', 'active', 'successful', 'expired'];
 export default function ExploreCampaignsPage() {
   const { data: campaignAddresses } = useReadContract({
     address: FACTORY_ADDRESS as `0x${string}`,
-    abi: FactoryABI,
+    abi: FactoryABI as Abi,
     functionName: 'getDeployedCampaigns',
   });
 
@@ -51,11 +51,11 @@ export default function ExploreCampaignsPage() {
     query: { enabled: addresses.length > 0 }
   });
 
-  const [realCampaigns, setRealCampaigns] = useState<any[]>([]);
+  const [realCampaigns, setRealCampaigns] = useState<Campaign[]>([]);
 
   useEffect(() => {
     if (campaignData && addresses.length > 0) {
-      const campaigns = [];
+      const campaigns: Campaign[] = [];
       
       for (let i = 0; i < addresses.length; i++) {
         const base = i * 7;
@@ -71,7 +71,7 @@ export default function ExploreCampaignsPage() {
                 description: "Blockchain Campaign",
                 imageUrl: campaignData[base + 1].result as string || "https://placehold.co/600x400",
                 imageHint: "blockchain project",
-                category: campaignData[base + 2].result as string || "Tech",
+                category: (campaignData[base + 2].result as string || "Tech") as Campaign['category'],
                 currentFunding: Number(formatEther(currentFundingWei)),
                 fundingGoal: Number(formatEther(goalWei)),
                 deadline: new Date(deadlineSeconds * 1000).toISOString(),
@@ -81,7 +81,7 @@ export default function ExploreCampaignsPage() {
                     avatarUrl: "https://placehold.co/100", 
                     isVerified: false 
                 },
-                status: 'active',
+                status: 'active', // This would need more complex logic to determine status
                 acceptedAssets: [], 
                 milestones: [],
                 requiresFdc: false
@@ -92,7 +92,6 @@ export default function ExploreCampaignsPage() {
     }
   }, [campaignData, addresses]);
 
-  const allCampaigns = [...realCampaigns, ...mockCampaigns];
 
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('All');
@@ -100,7 +99,7 @@ export default function ExploreCampaignsPage() {
   const [requiresFdc, setRequiresFdc] = useState(false);
   const [sortBy, setSortBy] = useState('trending');
 
-  const filteredCampaigns = allCampaigns
+  const filteredCampaigns = realCampaigns
     .filter((campaign) =>
       campaign.title.toLowerCase().includes(searchTerm.toLowerCase())
     )
