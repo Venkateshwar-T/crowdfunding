@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Separator } from '../ui/separator';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount } from 'wagmi';
 
 const navLinks = [
   { href: '/campaigns', label: 'Explore' },
@@ -28,6 +29,7 @@ const Logo = () => (
 export default function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isConnected } = useAccount();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -62,6 +64,18 @@ export default function Navbar() {
                     {label}
                   </Link>
                 ))}
+                {isConnected && (
+                   <Link
+                    href="/dashboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      'text-lg font-medium transition-colors hover:text-primary',
+                      pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
+                    )}
+                  >
+                    Dashboard
+                  </Link>
+                )}
               </nav>
               <div className="mt-auto flex flex-col gap-4 p-6">
                 <Separator />
@@ -89,6 +103,17 @@ export default function Navbar() {
                   {label}
                 </Link>
               ))}
+              {isConnected && (
+                 <Link
+                  href="/dashboard"
+                  className={cn(
+                    'transition-colors hover:text-primary',
+                    pathname === '/dashboard' ? 'text-foreground' : 'text-muted-foreground'
+                  )}
+                >
+                  Dashboard
+                </Link>
+              )}
             </nav>
           </div>
           
