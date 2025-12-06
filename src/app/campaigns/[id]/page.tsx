@@ -16,6 +16,8 @@ import { PriceTicker } from "@/components/shared/PriceTicker";
 import { Input } from "@/components/ui/input";
 import { FtsoPriceGuidance } from "@/components/campaign/FtsoPriceGuidance";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export default function CampaignDetailPage({ params }: { params: { id: string } }) {
   const campaign = mockCampaigns.find((c) => c.id === params.id);
