@@ -8,9 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Separator } from '../ui/separator';
 
 const navLinks = [
   { href: '/campaigns', label: 'Explore' },
@@ -29,7 +27,6 @@ const Logo = () => (
 export default function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const userAvatar = PlaceHolderImages.find(img => img.id === 'user-avatar-1');
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -65,6 +62,15 @@ export default function Navbar() {
                   </Link>
                 ))}
               </nav>
+              <div className="mt-auto flex flex-col gap-4 p-6">
+                <Separator />
+                <Button asChild variant="outline">
+                  <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>Login</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>Sign Up</Link>
+                </Button>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
@@ -93,36 +99,15 @@ export default function Navbar() {
                 <Search className="h-5 w-5" />
                 <span className="sr-only">Search</span>
             </Button>
-            <Button asChild className='hidden sm:inline-flex'>
-                <Link href="/create-campaign">Create Campaign</Link>
-            </Button>
-
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                        <Avatar className="h-9 w-9">
-                            {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" data-ai-hint={userAvatar.imageHint} />}
-                            <AvatarFallback>SN</AvatarFallback>
-                        </Avatar>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">Satoshi</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                        satoshi@gmx.com
-                        </p>
-                    </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild><Link href="/dashboard">Dashboard</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/dashboard">My Contributions</Link></DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>Log out</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-
+            
+            <div className='hidden sm:flex items-center gap-2'>
+              <Button variant="ghost" asChild>
+                  <Link href="/login">Login</Link>
+              </Button>
+              <Button asChild>
+                  <Link href="/register">Sign Up</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
