@@ -5,7 +5,7 @@ import { Flame, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Separator } from '../ui/separator';
@@ -46,10 +46,12 @@ export default function Navbar() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="pr-0">
-            <div className="flex flex-col h-full">
-              <div className='p-6'>
+            <SheetHeader className="p-6">
+                <SheetTitle className="sr-only">Menu</SheetTitle>
+                <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
                 <Logo />
-              </div>
+            </SheetHeader>
+            <div className="flex flex-col h-full">
               <nav className="flex flex-col items-start gap-4 p-6">
                 {navLinks.map(({ href, label }) => (
                   <Link
