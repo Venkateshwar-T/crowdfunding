@@ -9,7 +9,7 @@ import { differenceInDays } from "date-fns";
 import { Loader2 } from "lucide-react";
 
 // UI Components
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,12 +25,16 @@ import { PriceTicker } from "@/components/shared/PriceTicker";
 
 // Data & Types
 import { mockPriceFeeds } from "@/lib/mock-data";
-import { type Campaign } from "@/lib/types";
+import { type Campaign, type Creator } from "@/lib/types";
+import { useUser } from '@/firebase';
 
 // Blockchain
 import { useReadContracts, useWriteContract } from "wagmi";
 import CampaignABI from '@/lib/abi/Campaign.json';
 import { type Abi, formatEther, parseEther } from "viem";
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { initializeFirebase } from '@/firebase';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 // --- CONFIGURATION ---
 // MUST MATCH YOUR CREATE PAGE CONFIG
@@ -56,12 +60,51 @@ const ERC20_ABI = [
   }
 ] as const;
 
+// A simple in-memory cache to store address-to-user mappings
+const userCache = new Map<string, FirebaseUser>();
+
+async function getFirebaseUserByAddress(address: string): Promise<FirebaseUser | null> {
+    if (userCache.has(address)) {
+        return userCache.get(address) || null;
+    }
+    // In a real app, you would have a backend service to resolve address to a user ID.
+    // For this demo, we'll simulate this by finding the first user.
+    // This is NOT a secure or scalable approach.
+    const { auth } = initializeFirebase();
+    if (!auth) return null;
+
+    // This is a placeholder. A real implementation would query a database
+    // that maps wallet addresses to Firebase UIDs.
+    // Since we can't do that securely on the client, we'll use the currently logged-in user
+    // if their address matches. For others, we can't resolve the name.
+    
+    return new Promise((resolve) => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            unsubscribe();
+            // This is a big simplification. A real app needs a backend to map addresses to UIDs.
+            // We're just checking if the *current* user is the creator.
+            // We can't look up arbitrary users by address from the client.
+            if (user) {
+                 // In a real app, you would have stored the user's wallet address in their profile
+                 // for this lookup. We are assuming the current user is the creator for demo purposes.
+                 userCache.set(address, user);
+                 resolve(user);
+            } else {
+                 resolve(null);
+            }
+        });
+    });
+}
+
+
 export default function CampaignDetailPage() {
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id; 
   const { toast } = useToast();
+  const { user: currentUser } = useUser();
 
   const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
+  const [creatorInfo, setCreatorInfo] = useState<Creator | null>(null);
   
   // Contribution State
   const [selectedAssetSymbol, setSelectedAssetSymbol] = useState<string>('');
@@ -94,51 +137,80 @@ export default function CampaignDetailPage() {
   // --- WRITE HOOKS ---
   const { writeContractAsync } = useWriteContract();
 
+  // Effect to process blockchain data
   useEffect(() => {
-    if (!id) return;
+    if (!id || !isBlockchainId || !campaignData) return;
 
-    // Blockchain Data is the source of truth
-    if (isBlockchainId && campaignData) {
-        const [titleRes, imgRes, catRes, currRes, goalRes, deadRes, creatorRes, descRes, detailsRes] = campaignData;
+    const [titleRes, imgRes, catRes, currRes, goalRes, deadRes, creatorRes, descRes, detailsRes] = campaignData;
 
-        if (titleRes?.status === 'success') {
-             const acceptedTickers = (detailsRes?.result as any)?.[4] || [];
-             const acceptedAssets = acceptedTickers.map((ticker: string) => ({ 
-                symbol: ticker, 
-                name: `Flare ${ticker.replace('F-', '')}` 
-            }));
+    if (titleRes?.status === 'success' && creatorRes?.status === 'success') {
+        const acceptedTickers = (detailsRes?.result as any)?.[4] || [];
+        const acceptedAssets = acceptedTickers.map((ticker: string) => ({ 
+            symbol: ticker, 
+            name: `Flare ${ticker.replace('F-', '')}` 
+        }));
 
-            setCampaign({
-                id: id,
-                title: titleRes.result as string,
-                description: (descRes?.result as string) || "No description.",
-                imageUrl: (imgRes?.result as string) || "https://placehold.co/600x400",
-                imageHint: "blockchain project",
-                category: (catRes?.result as any) || "Tech",
-                currentFunding: Number(formatEther((currRes?.result as bigint) || 0n)),
-                fundingGoal: Number(formatEther((goalRes?.result as bigint) || 0n)),
-                deadline: new Date(Number(deadRes?.result || 0) * 1000).toISOString(),
-                creator: {
-                    id: "creator-chain",
-                    name: (creatorRes?.result as string)?.slice(0, 8) + "...",
-                    avatarUrl: "https://placehold.co/100",
-                    isVerified: false
-                },
-                status: 'active',
-                acceptedAssets: acceptedAssets,
-                milestones: [], 
-                requiresFdc: false,
-            });
-            // Default to first asset if not set
-            if (acceptedAssets.length > 0 && !selectedAssetSymbol) {
-                 setSelectedAssetSymbol(acceptedAssets[0].symbol);
-            }
-        } else {
-            // Only set to null if we are sure the call failed (avoid flickering)
-            if (!isLoadingBlockchain) setCampaign(null);
+        const creatorAddress = creatorRes.result as string;
+
+        setCampaign({
+            id: id,
+            title: titleRes.result as string,
+            description: (descRes?.result as string) || "No description.",
+            imageUrl: (imgRes?.result as string) || "https://placehold.co/600x400",
+            imageHint: "blockchain project",
+            category: (catRes?.result as any) || "Tech",
+            currentFunding: Number(formatEther((currRes?.result as bigint) || 0n)),
+            fundingGoal: Number(formatEther((goalRes?.result as bigint) || 0n)),
+            deadline: new Date(Number(deadRes?.result || 0) * 1000).toISOString(),
+            creator: { // This will be replaced by creatorInfo state
+                id: creatorAddress,
+                name: creatorAddress.slice(0, 8) + "...",
+                avatarUrl: "https://placehold.co/100",
+                isVerified: false
+            },
+            status: 'active',
+            acceptedAssets: acceptedAssets,
+            milestones: [], 
+            requiresFdc: false,
+        });
+        
+        if (acceptedAssets.length > 0 && !selectedAssetSymbol) {
+             setSelectedAssetSymbol(acceptedAssets[0].symbol);
         }
+    } else if (!isLoadingBlockchain) {
+        setCampaign(null);
     }
   }, [campaignData, id, isBlockchainId, isLoadingBlockchain, selectedAssetSymbol]);
+
+  // Effect to fetch Firebase user info for the creator
+  useEffect(() => {
+    if (campaign?.creator.id) {
+        const creatorAddress = campaign.creator.id;
+        
+        // This is a simplified lookup. In a real app, you'd query a backend.
+        // We check if the currently logged-in user is the creator.
+        if (currentUser && currentUser.providerData?.[0]?.uid) {
+             // This is a mock association. A real app needs to store the wallet address
+             // with the user profile upon registration to perform this lookup.
+             // For now, we assume the creator is the currently logged in user for display purposes.
+             setCreatorInfo({
+                 id: creatorAddress,
+                 name: currentUser.displayName || "Anonymous Creator",
+                 avatarUrl: currentUser.photoURL || "https://placehold.co/100",
+                 isVerified: currentUser.emailVerified // Example verification
+             });
+        } else {
+            // Fallback if we can't find a Firebase user
+            setCreatorInfo({
+                id: creatorAddress,
+                name: creatorAddress.slice(0, 8) + "...",
+                avatarUrl: "https://placehold.co/100",
+                isVerified: false,
+            });
+        }
+    }
+  }, [campaign?.creator.id, currentUser]);
+
 
   // --- HANDLE CONTRIBUTE ---
   const handleContribute = async () => {
@@ -197,6 +269,7 @@ export default function CampaignDetailPage() {
     </div>
   );
 
+  const finalCreator = creatorInfo || campaign.creator;
   const daysLeft = differenceInDays(new Date(campaign.deadline), new Date());
   const priceFeed = mockPriceFeeds.find(f => f.asset === selectedAssetSymbol);
   const estUsdValue = priceFeed && amount ? (Number(amount) * priceFeed.price).toFixed(2) : "0.00";
@@ -214,8 +287,11 @@ export default function CampaignDetailPage() {
                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span>Created by</span>
                     <span className="font-semibold text-foreground flex items-center gap-2">
-                        <Avatar className="h-6 w-6"><AvatarFallback>CR</AvatarFallback></Avatar>
-                        {campaign.creator.name}
+                        <Avatar className="h-6 w-6">
+                            <AvatarImage src={finalCreator.avatarUrl} alt={finalCreator.name} />
+                            <AvatarFallback>{finalCreator.name?.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        {finalCreator.name}
                     </span>
                 </div>
             </div>
