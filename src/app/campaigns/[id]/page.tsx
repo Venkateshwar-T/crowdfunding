@@ -28,7 +28,7 @@ import { type Campaign } from "@/lib/types";
 import { useEffect, useState } from "react";
 
 export default function CampaignDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+  const id = params.id;
   const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
 
   // --- BLOCKCHAIN DATA FETCHING ---

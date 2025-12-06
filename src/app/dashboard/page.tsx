@@ -33,7 +33,7 @@ export default function DashboardPage() {
     // 1. Get list of all campaigns
     const { data: campaignAddresses } = useReadContract({
         address: FACTORY_ADDRESS as `0x${string}`,
-        abi: FactoryABI,
+        abi: FactoryABI as Abi,
         functionName: 'getDeployedCampaigns',
     });
 
@@ -246,4 +246,3 @@ export default function DashboardPage() {
         </Tabs>
     );
 }
-    

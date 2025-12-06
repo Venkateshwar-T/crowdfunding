@@ -23,6 +23,7 @@ import { useRouter } from 'next/navigation';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useToast } from '@/hooks/use-toast';
 import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
+import type { Abi } from 'viem';
 
 // --- CONFIGURATION CONSTANTS (REPLACE THESE!) ---
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
@@ -141,7 +142,7 @@ export default function CreateCampaignPage() {
     // 3. Send Transaction
     writeContract({
         address: FACTORY_ADDRESS as `0x${string}`,
-        abi: FactoryABI,
+        abi: FactoryABI as Abi,
         functionName: 'createCampaign',
         args: [
             data.title,
@@ -338,5 +339,3 @@ export default function CreateCampaignPage() {
     </div>
   );
 }
-
-    
