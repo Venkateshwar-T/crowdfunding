@@ -9,7 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Separator } from '../ui/separator';
-import { ConnectWalletDialog } from '../shared/ConnectWalletDialog';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const navLinks = [
   { href: '/campaigns', label: 'Explore' },
@@ -65,9 +65,9 @@ export default function Navbar() {
               </nav>
               <div className="mt-auto flex flex-col gap-4 p-6">
                 <Separator />
-                <ConnectWalletDialog>
-                  <Button className="w-full" onClick={() => setIsMobileMenuOpen(false)}>Connect Wallet</Button>
-                </ConnectWalletDialog>
+                <div onClick={() => setIsMobileMenuOpen(false)}>
+                  <ConnectButton />
+                </div>
               </div>
             </div>
           </SheetContent>
@@ -92,12 +92,8 @@ export default function Navbar() {
             </nav>
           </div>
           
-          <div className="flex items-center gap-2">
-            <div className='hidden sm:flex items-center gap-2'>
-              <ConnectWalletDialog>
-                  <Button>Connect Wallet</Button>
-              </ConnectWalletDialog>
-            </div>
+          <div className="hidden sm:flex items-center gap-2">
+            <ConnectButton />
           </div>
         </div>
       </div>
