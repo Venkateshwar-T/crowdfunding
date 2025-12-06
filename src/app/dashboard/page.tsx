@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,8 @@ export default function DashboardPage() {
     const { address: userAddress, isConnected } = useAccount();
     const [myCampaigns, setMyCampaigns] = useState<any[]>([]);
     const [myContributions, setMyContributions] = useState<any[]>([]);
+    const searchParams = useSearchParams();
+    const defaultTab = searchParams.get('tab') || 'my-campaigns';
 
     const { data: campaignAddressesResult } = useReadContract({
         address: FACTORY_ADDRESS as `0x${string}`,
@@ -102,7 +105,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <Tabs defaultValue="my-campaigns" className="w-full">
+        <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
                 <TabsTrigger value="my-campaigns">My Campaigns</TabsTrigger>
                 <TabsTrigger value="my-contributions">My Contributions</TabsTrigger>
