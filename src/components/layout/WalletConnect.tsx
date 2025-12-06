@@ -33,7 +33,11 @@ export function WalletConnect() {
   const auth = useAuth();
 
   // Fetch native balance
-  const { data: nativeBalance } = useBalance({ address });
+  const { data: nativeBalance } = useBalance({ address,
+    query: {
+        enabled: !!address,
+    }
+  });
 
   // Fetch F-Asset balances
   const fAssetBalances = TOKEN_SYMBOLS.map(symbol => {
@@ -48,11 +52,14 @@ export function WalletConnect() {
     return data;
   }).filter(Boolean);
 
-
-  const handleDisconnect = () => {
+  const handleSignOut = () => {
     if (auth) {
       signOut(auth);
     }
+  }
+
+  const handleDisconnect = () => {
+    handleSignOut();
     disconnect();
   }
 
@@ -114,6 +121,10 @@ export function WalletConnect() {
         <DropdownMenuItem onClick={handleDisconnect}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Disconnect</span>
+        </DropdownMenuItem>
+         <DropdownMenuItem onClick={handleSignOut}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log Out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
