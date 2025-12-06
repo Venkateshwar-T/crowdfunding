@@ -21,9 +21,10 @@ const provider = new GoogleAuthProvider();
 
 type RegisterDialogProps = {
   onRegister?: () => void;
+  children?: React.ReactNode;
 };
 
-export function RegisterDialog({ onRegister }: RegisterDialogProps) {
+export function RegisterDialog({ onRegister, children }: RegisterDialogProps) {
   const [open, setOpen] = useState(false);
   const { user, loading } = useUser();
   const { isConnected } = useAccount();
@@ -55,18 +56,18 @@ export function RegisterDialog({ onRegister }: RegisterDialogProps) {
 
   const isStep1Complete = !!user;
   const isStep2Complete = isConnected;
-
-  const TriggerButton = () => (
+  
+  const triggerButton = children ?? (
      <Button variant="outline" className="w-full">
         <LogIn className="mr-2 h-4 w-4" />
         Register / Sign In
     </Button>
-  )
+  );
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
-        <TriggerButton />
+        {triggerButton}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
