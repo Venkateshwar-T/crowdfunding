@@ -6,7 +6,7 @@ import Footer from '@/components/layout/Footer';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'Flarestarter',
+  title: 'CrowdFund',
   description: 'The premier crowdfunding platform on the Flare blockchain.',
 };
 

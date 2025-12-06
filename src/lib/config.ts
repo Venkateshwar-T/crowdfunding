@@ -6,7 +6,7 @@ import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 const projectId = '065b9d9852130a72b187d8b590d0bc5e';
 
 export const config = getDefaultConfig({
-  appName: 'Flarestarter',
+  appName: 'CrowdFund',
   projectId: projectId,
   chains: [flareTestnet],
   transports: {

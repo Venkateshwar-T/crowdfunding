@@ -8,25 +8,25 @@ const flareFeatures = [
         id: "flare-fassets",
         icon: <Droplets className="h-10 w-10 text-primary" />,
         title: "FAssets",
-        description: "FAssets bring non-smart contract assets like BTC, XRP, and DOGE to the Flare Network. This allows them to be used with smart contracts, enabling decentralized applications like Flarestarter to accept a wider range of funding sources without compromising security or decentralization. It's like wrapping a gift to use it in a new way.",
+        description: "FAssets bring non-smart contract assets like BTC, XRP, and DOGE to the Flare Network. This allows them to be used with smart contracts, enabling decentralized applications like CrowdFund to accept a wider range of funding sources without compromising security or decentralization. It's like wrapping a gift to use it in a new way.",
     },
     {
         id: "flare-fdc",
         icon: <Fingerprint className="h-10 w-10 text-primary" />,
         title: "Flare Decentralized Identity (FDC)",
-        description: "FDC provides a framework for verifiable, on-chain identity. For platforms like Flarestarter, this means creators can prove their identity without revealing sensitive personal information, and backers can trust that campaigns are run by verified individuals. It's a digital passport for the Web3 world, enhancing trust and security.",
+        description: "FDC provides a framework for verifiable, on-chain identity. For platforms like CrowdFund, this means creators can prove their identity without revealing sensitive personal information, and backers can trust that campaigns are run by verified individuals. It's a digital passport for the Web3 world, enhancing trust and security.",
     },
     {
         id: "flare-ftso",
         icon: <Cpu className="h-10 w-10 text-primary" />,
         title: "Flare Time Series Oracle (FTSO)",
-        description: "The FTSO is a highly decentralized oracle that provides reliable, real-time price data to the Flare Network. It's crucial for Flarestarter to accurately calculate funding goals and contribution values across different assets. By sourcing data from a wide range of providers, the FTSO resists manipulation and ensures fair market prices.",
+        description: "The FTSO is a highly decentralized oracle that provides reliable, real-time price data to the Flare Network. It's crucial for CrowdFund to accurately calculate funding goals and contribution values across different assets. By sourcing data from a wide range of providers, the FTSO resists manipulation and ensures fair market prices.",
     },
     {
         id: "flare-smart-accounts",
         icon: <Users className="h-10 w-10 text-primary" />,
         title: "Flare Smart Accounts",
-        description: "Flare enhances standard Externally Owned Accounts (EOAs) with smart contract capabilities. Each campaign on Flarestarter can be managed by a dedicated smart account, allowing for automated, rule-based fund distribution, milestone-based payments, and decentralized governance. It makes every account smarter and more powerful.",
+        description: "Flare enhances standard Externally Owned Accounts (EOAs) with smart contract capabilities. Each campaign on CrowdFund can be managed by a dedicated smart account, allowing for automated, rule-based fund distribution, milestone-based payments, and decentralized governance. It makes every account smarter and more powerful.",
     }
 ];
 
@@ -37,7 +37,7 @@ export default function FlarePage() {
        <div className="text-center mb-16">
         <h1 className="font-headline text-4xl md:text-5xl font-bold">The Power of Flare</h1>
         <p className="mt-2 text-lg text-muted-foreground max-w-3xl mx-auto">
-          Flarestarter is built on a stack of powerful, decentralized technologies provided by the Flare Network.
+          CrowdFund is built on a stack of powerful, decentralized technologies provided by the Flare Network.
         </p>
       </div>
 

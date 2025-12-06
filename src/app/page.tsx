@@ -193,7 +193,7 @@ export default function Home() {
       <section id="how-it-works" className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold">How Flarestarter Works</h2>
+            <h2 className="font-headline text-3xl md:text-4xl font-bold">How CrowdFund Works</h2>
             <p className="mt-2 text-lg text-muted-foreground max-w-3xl mx-auto">
               We leverage the full power of the Flare Network to provide a secure, transparent, and versatile crowdfunding experience.
             </p>

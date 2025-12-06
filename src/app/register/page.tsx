@@ -21,7 +21,7 @@ export default function RegisterPage() {
             <Flame className="h-6 w-6" /> Create an Account
           </CardTitle>
           <CardDescription>
-            Join Flarestarter to launch and back innovative projects.
+            Join CrowdFund to launch and back innovative projects.
           </CardDescription>
         </CardHeader>
         <CardContent>

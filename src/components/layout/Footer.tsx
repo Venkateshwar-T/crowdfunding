@@ -33,7 +33,7 @@ export default function Footer() {
           <div className="col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
               <Flame className="h-7 w-7 text-primary" />
-              <span className="font-headline text-xl font-bold tracking-tight">Flarestarter</span>
+              <span className="font-headline text-xl font-bold tracking-tight">CrowdFund</span>
             </Link>
             <p className="text-muted-foreground text-sm max-w-xs">
               Decentralized crowdfunding on the Flare Network.
@@ -56,7 +56,7 @@ export default function Footer() {
         </div>
         <div className="mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Flarestarter. All Rights Reserved.
+            &copy; {new Date().getFullYear()} CrowdFund. All Rights Reserved.
           </p>
           <div className="flex items-center gap-4 mt-4 sm:mt-0">
             {socialLinks.map((social) => (

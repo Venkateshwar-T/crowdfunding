@@ -18,7 +18,7 @@ export default function LoginPage() {
       <Card className="mx-auto max-w-sm w-full">
         <CardHeader>
           <CardTitle className="text-2xl font-headline flex items-center gap-2">
-            <Flame className="h-6 w-6" /> Login to Flarestarter
+            <Flame className="h-6 w-6" /> Login to CrowdFund
           </CardTitle>
           <CardDescription>
             Enter your email below to login to your account

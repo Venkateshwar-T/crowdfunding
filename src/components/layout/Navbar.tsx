@@ -21,7 +21,7 @@ const navLinks = [
 const Logo = () => (
     <Link href="/" className="flex items-center gap-2">
         <Flame className="h-7 w-7 text-primary" />
-        <span className="font-headline text-xl font-bold tracking-tight">Flarestarter</span>
+        <span className="font-headline text-xl font-bold tracking-tight">CrowdFund</span>
     </Link>
 );
 
