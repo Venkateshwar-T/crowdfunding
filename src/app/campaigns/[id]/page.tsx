@@ -28,12 +28,13 @@ import { type Campaign } from "@/lib/types";
 import { useEffect, useState } from "react";
 
 export default function CampaignDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
 
   // --- BLOCKCHAIN DATA FETCHING ---
   const campaignContractConfig = {
     abi: CampaignABI as Abi,
-    address: params.id as `0x${string}`
+    address: id as `0x${string}`
   } as const;
 
   const { data: campaignData, isLoading: isLoadingBlockchain } = useReadContracts({
@@ -48,11 +49,11 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
       { ...campaignContractConfig, functionName: 'description' },
       { ...campaignContractConfig, functionName: 'getDetails' }, // Fetches tickers
     ],
-    query: { enabled: params.id.startsWith('0x') } // Only run for blockchain addresses
+    query: { enabled: id.startsWith('0x') } // Only run for blockchain addresses
   });
 
   useEffect(() => {
-    let foundCampaign = mockCampaigns.find((c) => c.id === params.id) || null;
+    let foundCampaign = mockCampaigns.find((c) => c.id === id) || null;
 
     if (!foundCampaign && campaignData) {
         // Transform blockchain data into app format
@@ -68,7 +69,7 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
              const acceptedTickers = (details?.result as any)?.[4] || [];
 
             foundCampaign = {
-                id: params.id,
+                id: id,
                 title: title.result as string || "Untitled",
                 description: description.result as string || "Blockchain Campaign Description",
                 imageUrl: imageUrl.result as string || "https://placehold.co/600x400",
@@ -91,7 +92,7 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
         }
     }
      setCampaign(foundCampaign);
-  }, [campaignData, params.id]);
+  }, [campaignData, id]);
 
   if (isLoadingBlockchain || campaign === undefined) {
     return (
@@ -299,5 +300,4 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
       </div>
     </div>
   );
-
-    
+}
