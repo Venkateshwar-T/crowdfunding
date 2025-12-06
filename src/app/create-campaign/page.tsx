@@ -1,3 +1,4 @@
+
 'use client';
 
 import { z } from 'zod';
@@ -12,20 +13,21 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileUpload } from '@/components/shared/FileUpload';
 import { MilestoneCard } from '@/components/shared/MilestoneCard';
-import { PlusCircle, Loader2 } from 'lucide-react';
+import { PlusCircle, Loader2, CalendarIcon } from 'lucide-react';
 import { FAssetIcon } from '@/components/shared/FAssetIcon';
 import { mockCampaigns } from '@/lib/mock-data';
 import { Checkbox } from '@/components/ui/checkbox';
-
-// --- NEW IMPORTS FOR BLOCKCHAIN ---
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useToast } from '@/hooks/use-toast';
 import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
 import type { Abi } from 'viem';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
-// --- CONFIGURATION CONSTANTS (REPLACE THESE!) ---
 const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
 
 const MOCK_TOKENS: Record<string, string> = {
@@ -38,7 +40,9 @@ const MOCK_TOKENS: Record<string, string> = {
 const milestoneSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  targetDate: z.string().refine((val) => !isNaN(Date.parse(val)), 'Invalid date'),
+  targetDate: z.date({
+    required_error: "A target date is required.",
+  }),
 });
 
 const campaignFormSchema = z.object({
@@ -46,7 +50,9 @@ const campaignFormSchema = z.object({
   description: z.string().min(20, 'Description must be at least 20 characters'),
   category: z.string().min(1, 'Please select a category'),
   fundingGoal: z.coerce.number().min(1, 'Funding goal must be at least 1'),
-  deadline: z.string().refine((val) => !isNaN(Date.parse(val)), 'Invalid date'),
+  deadline: z.date({
+    required_error: "A deadline date is required.",
+  }),
   image: z.any().optional(),
   milestones: z.array(milestoneSchema).optional(),
   requiresFdc: z.boolean().default(false),
@@ -84,7 +90,6 @@ export default function CreateCampaignPage() {
       description: '',
       category: '',
       fundingGoal: 1000,
-      deadline: '',
       requiresFdc: false,
       acceptedAssets: [],
       milestones: [],
@@ -206,13 +211,47 @@ export default function CreateCampaignPage() {
                             <FormMessage />
                         </FormItem>
                     )} />
-                     <FormField name="deadline" control={form.control} render={({ field }) => (
-                        <FormItem>
+                     <FormField
+                        name="deadline"
+                        control={form.control}
+                        render={({ field }) => (
+                            <FormItem className="flex flex-col">
                             <FormLabel>Campaign Deadline</FormLabel>
-                            <FormControl><Input type="date" {...field} /></FormControl>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                <FormControl>
+                                    <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full pl-3 text-left font-normal",
+                                        !field.value && "text-muted-foreground"
+                                    )}
+                                    >
+                                    {field.value ? (
+                                        format(field.value, "PPP")
+                                    ) : (
+                                        <span>Pick a date</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    disabled={(date) =>
+                                        date < new Date() || date < new Date("1900-01-01")
+                                    }
+                                    initialFocus
+                                />
+                                </PopoverContent>
+                            </Popover>
                             <FormMessage />
-                        </FormItem>
-                    )} />
+                            </FormItem>
+                        )}
+                        />
                 </CardContent>
             </Card>
 
@@ -242,7 +281,7 @@ export default function CreateCampaignPage() {
                     {fields.map((field, index) => (
                         <MilestoneCard key={field.id} index={index} remove={remove} />
                     ))}
-                    <Button type="button" variant="outline" className="w-full" onClick={() => append({ title: '', description: '', targetDate: '' })}>
+                    <Button type="button" variant="outline" className="w-full" onClick={() => append({ title: '', description: '', targetDate: new Date() })}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Add Milestone
                     </Button>
                 </CardContent>
@@ -327,5 +366,3 @@ export default function CreateCampaignPage() {
     </div>
   );
 }
-
-    
