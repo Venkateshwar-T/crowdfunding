@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -30,7 +31,7 @@ export default function Home() {
   
   return (
     <div className="flex flex-col">
-      <section className="relative w-full h-[60vh] md:h-[80vh] text-white">
+      <section className="relative w-full h-auto md:h-[80vh] py-20 md:py-0 text-white">
         {heroImage && (
            <Image
              src={heroImage.imageUrl}
@@ -42,12 +43,12 @@ export default function Home() {
            />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background to-black/60" />
-        <div className="relative container mx-auto z-10 flex flex-row items-center justify-between h-full text-left px-4">
-          <div>
+        <div className="relative container mx-auto z-10 flex flex-col md:flex-row items-center justify-center md:justify-between h-full text-center md:text-left px-4">
+          <div className="mb-8 md:mb-0">
             <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter leading-tight">
               Decentralized Crowdfunding, <br /> Powered by Flare.
             </h1>
-            <p className="mt-4 max-w-2xl text-lg md:text-xl text-primary-foreground/80">
+            <p className="mt-4 max-w-2xl text-lg md:text-xl text-primary-foreground/80 mx-auto md:mx-0">
               Launch your innovative projects using FAssets like BTC & XRP, secured by the Flare Time Series Oracle.
             </p>
           </div>
