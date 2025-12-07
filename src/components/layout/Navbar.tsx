@@ -3,7 +3,7 @@
 'use client';
 
 import Link from 'next/link';
-import { HandCoins, Menu } from 'lucide-react';
+import { HandCoins, LogIn, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -103,7 +103,11 @@ export default function Navbar() {
             {isAuthenticated ? (
               <WalletConnect />
             ) : (
-              <RegisterDialog />
+               <RegisterDialog>
+                 <Button variant="ghost" size="icon" className="h-10 w-10">
+                    <LogIn className="h-5 w-5" />
+                 </Button>
+               </RegisterDialog>
             )}
           </div>
         </div>
