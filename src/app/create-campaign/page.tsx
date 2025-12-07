@@ -28,8 +28,7 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { FACTORY_ADDRESS, MOCK_TOKENS } from '@/lib/constants';
-import { useUser, useStorage } from '@/firebase';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { useUser } from '@/firebase';
 import { RegisterDialog } from '@/components/shared/RegisterDialog';
 
 const milestoneSchema = z.object({
@@ -78,7 +77,6 @@ const availableAssets = [
 export default function CreateCampaignPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const storage = useStorage();
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isOtherCategory, setIsOtherCategory] = useState(false);
 
@@ -163,21 +161,8 @@ export default function CreateCampaignPage() {
       return;
     }
 
-    let finalImageUrl = "https://placehold.co/600x400/png";
-
-    if (imageFile && storage) {
-        toast({ title: "Uploading Image...", description: "Please wait while we upload your campaign image."});
-        const storageRef = ref(storage, `campaign-images/${Date.now()}-${imageFile.name}`);
-        try {
-            const uploadResult = await uploadBytes(storageRef, imageFile);
-            finalImageUrl = await getDownloadURL(uploadResult.ref);
-             toast({ title: "Image Uploaded!", description: "Your image is now ready."});
-        } catch (error) {
-            console.error("Firebase Storage Error:", error);
-            toast({ title: "Image Upload Failed", description: "Could not upload image. Please try again.", variant: "destructive" });
-            return; // Stop submission if image upload fails
-        }
-    }
+    // Use a placeholder image URL instead of uploading to Firebase Storage.
+    const finalImageUrl = "https://placehold.co/600x400/png";
 
     const deadlineDate = new Date(data.deadline);
     const today = new Date();
