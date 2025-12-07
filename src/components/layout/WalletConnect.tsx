@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useAccount, useDisconnect, useBalance } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,6 +12,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { LogOut, Wallet, Landmark, User as UserIcon, Mail } from 'lucide-react';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
@@ -57,10 +68,6 @@ export function WalletConnect() {
     if (auth) {
       signOut(auth);
     }
-  }
-
-  const handleDisconnect = () => {
-    handleSignOut();
     disconnect();
   }
 
@@ -72,71 +79,83 @@ export function WalletConnect() {
   const connectorName = connector?.name || 'Wallet';
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="group">
-           <Wallet className="h-5 w-5 mr-2 text-primary transition-colors group-hover:text-primary-foreground" />
-           My Wallet
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-         <DropdownMenuItem disabled>
-            <UserIcon className="mr-2 h-4 w-4" />
-            <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground">Username</span>
-                <span className="font-mono text-sm truncate">{user.displayName || 'Anonymous'}</span>
-            </div>
-        </DropdownMenuItem>
-         <DropdownMenuItem disabled>
-            <Mail className="mr-2 h-4 w-4" />
-            <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground">Email</span>
-                <span className="font-mono text-sm truncate">{user.email}</span>
-            </div>
-        </DropdownMenuItem>
-        <DropdownMenuItem disabled>
-            <Wallet className="mr-2 h-4 w-4" />
-            <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground">Connected to {connectorName}</span>
-                <span className="font-mono text-sm">{shortAddress}</span>
-            </div>
-        </DropdownMenuItem>
-        
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">Balances</DropdownMenuLabel>
-        
-        {nativeBalance && (
-            <DropdownMenuItem>
-                <Landmark className="mr-2 h-4 w-4" />
-                <div className="flex flex-1 justify-between">
-                     <span>{nativeBalance.symbol}</span>
-                     <span className="font-mono">{parseFloat(nativeBalance.formatted).toFixed(4)}</span>
-                </div>
-            </DropdownMenuItem>
-        )}
-        {fAssetBalances.map((balance) => (
-            balance &&
-            <DropdownMenuItem key={balance.symbol}>
-                <FAssetIcon asset={balance.symbol as any} className="mr-2 h-4 w-4" />
-                 <div className="flex flex-1 justify-between">
-                     <span>{balance.symbol}</span>
-                     <span className="font-mono">{parseFloat(balance.formatted).toFixed(4)}</span>
-                </div>
-            </DropdownMenuItem>
-        ))}
+    <AlertDialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="group">
+             <Wallet className="h-5 w-5 mr-2 text-primary transition-colors group-hover:text-primary-foreground" />
+             My Wallet
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-72">
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+           <DropdownMenuItem disabled>
+              <UserIcon className="mr-2 h-4 w-4" />
+              <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground">Username</span>
+                  <span className="font-mono text-sm truncate">{user.displayName || 'Anonymous'}</span>
+              </div>
+          </DropdownMenuItem>
+           <DropdownMenuItem disabled>
+              <Mail className="mr-2 h-4 w-4" />
+              <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground">Email</span>
+                  <span className="font-mono text-sm truncate">{user.email}</span>
+              </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled>
+              <Wallet className="mr-2 h-4 w-4" />
+              <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground">Connected to {connectorName}</span>
+                  <span className="font-mono text-sm">{shortAddress}</span>
+              </div>
+          </DropdownMenuItem>
+          
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">Balances</DropdownMenuLabel>
+          
+          {nativeBalance && (
+              <DropdownMenuItem>
+                  <Landmark className="mr-2 h-4 w-4" />
+                  <div className="flex flex-1 justify-between">
+                       <span>{nativeBalance.symbol}</span>
+                       <span className="font-mono">{parseFloat(nativeBalance.formatted).toFixed(4)}</span>
+                  </div>
+              </DropdownMenuItem>
+          )}
+          {fAssetBalances.map((balance) => (
+              balance &&
+              <DropdownMenuItem key={balance.symbol}>
+                  <FAssetIcon asset={balance.symbol as any} className="mr-2 h-4 w-4" />
+                   <div className="flex flex-1 justify-between">
+                       <span>{balance.symbol}</span>
+                       <span className="font-mono">{parseFloat(balance.formatted).toFixed(4)}</span>
+                  </div>
+              </DropdownMenuItem>
+          ))}
 
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleDisconnect}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Disconnect</span>
-        </DropdownMenuItem>
-         <DropdownMenuItem onClick={handleSignOut}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log Out</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuSeparator />
+          <AlertDialogTrigger asChild>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log Out & Disconnect</span>
+            </DropdownMenuItem>
+          </AlertDialogTrigger>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will sign you out of your Google account and disconnect your wallet from this application.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleSignOut}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
