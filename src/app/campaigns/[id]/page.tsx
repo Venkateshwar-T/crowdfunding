@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FAssetIcon } from "@/components/shared/FAssetIcon";
 import { ProgressBar } from "@/components/shared/ProgressBar";
 import { PriceTicker } from "@/components/shared/PriceTicker";
+import { RegisterDialog } from '@/components/shared/RegisterDialog';
 
 // Data & Types
 import { mockPriceFeeds } from "@/lib/mock-data";
@@ -104,6 +105,8 @@ export default function CampaignDetailPage() {
   const [selectedAssetSymbol, setSelectedAssetSymbol] = useState<string>('');
   const [amount, setAmount] = useState('');
   const [isApproving, setIsApproving] = useState(false);
+  
+  const isAuthenticated = isConnected && !!currentUser;
 
   // --- BLOCKCHAIN DATA FETCHING ---
   const isBlockchainId = id?.startsWith('0x');
@@ -208,8 +211,8 @@ export default function CampaignDetailPage() {
 
   // --- HANDLE CONTRIBUTE ---
   const handleContribute = async () => {
-    if (!isConnected) {
-        openConnectModal?.();
+    if (!isAuthenticated) {
+        toast({ title: "Authentication Required", description: "Please sign in and connect your wallet to donate." });
         return;
     }
     if (!amount || !selectedAssetSymbol || !id) return;
@@ -380,9 +383,17 @@ export default function CampaignDetailPage() {
                           <p className="text-xs text-right text-muted-foreground">≈ ${estUsdValue} USD</p>
                     </div>
 
-                    <Button className="w-full" size="lg" onClick={handleContribute} disabled={isApproving || !amount}>
-                      {isApproving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Approving...</> : (isConnected ? 'Donate Now' : 'Connect Wallet to Donate')}
-                    </Button>
+                    {isAuthenticated ? (
+                       <Button className="w-full" size="lg" onClick={handleContribute} disabled={isApproving || !amount}>
+                         {isApproving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Approving...</> : 'Donate Now'}
+                       </Button>
+                    ) : (
+                       <RegisterDialog>
+                           <Button className="w-full" size="lg">
+                            Sign in to Donate
+                           </Button>
+                       </RegisterDialog>
+                    )}
                   </CardContent>
                 </Card>
                 

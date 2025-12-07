@@ -28,6 +28,8 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { FACTORY_ADDRESS, MOCK_TOKENS } from '@/lib/constants';
+import { useUser } from '@/firebase';
+import { RegisterDialog } from '@/components/shared/RegisterDialog';
 
 const milestoneSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -79,7 +81,9 @@ export default function CreateCampaignPage() {
   const [isOtherCategory, setIsOtherCategory] = useState(false);
 
   const { isConnected } = useAccount();
-  const { openConnectModal } = useConnectModal();
+  const { user } = useUser();
+  const isAuthenticated = isConnected && !!user;
+
   const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess, error: receiptError } = useWaitForTransactionReceipt({ 
@@ -151,8 +155,8 @@ export default function CreateCampaignPage() {
   }
 
   const onSubmit = (data: CampaignFormValues) => {
-    if (!isConnected) {
-        openConnectModal?.();
+    if (!isAuthenticated) {
+        toast({ title: "Authentication Required", description: "Please sign in and connect your wallet to create a campaign." });
         return;
     }
 
@@ -399,26 +403,30 @@ export default function CreateCampaignPage() {
                 </CardContent>
             </Card>
 
-            <Button type="submit" size="lg" className="w-full" disabled={isPending || isConfirming}>
-              {isPending ? (
-                <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Confirm in Wallet...
-                </>
-              ) : isConfirming ? (
-                <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deploying Campaign...
-                </>
-              ) : isConnected ? (
-                'Create Campaign'
-              ) : (
-                'Connect Wallet to Create'
-              )}
-            </Button>
+            {isAuthenticated ? (
+                <Button type="submit" size="lg" className="w-full" disabled={isPending || isConfirming}>
+                {isPending ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Confirm in Wallet...
+                    </>
+                ) : isConfirming ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deploying Campaign...
+                    </>
+                ) : (
+                    'Create Campaign'
+                )}
+                </Button>
+            ) : (
+                <RegisterDialog>
+                     <Button type="button" size="lg" className="w-full">
+                       Sign in to Create Campaign
+                    </Button>
+                </RegisterDialog>
+            )}
           </form>
         </Form>
       </div>
     </div>
   );
 }
-
-    
