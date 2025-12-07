@@ -110,22 +110,22 @@ export default function Navbar() {
                   {label}
                 </Link>
               ))}
+               {isAuthenticated && (
+                <Link
+                    href="/dashboard"
+                    className={cn(
+                    'transition-colors hover:text-primary text-sm font-medium',
+                    pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
+                    )}
+                >
+                    Dashboard
+                </Link>
+              )}
             </nav>
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-4 ml-6">
               {isAuthenticated ? (
                 <>
-                    <Link
-                        href="/dashboard"
-                        className={cn(
-                        'transition-colors hover:text-primary text-sm font-medium',
-                        pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
-                        )}
-                    >
-                        Dashboard
-                    </Link>
-                     <div className="ml-4">
-                        <WalletConnect />
-                    </div>
+                    <WalletConnect />
                 </>
               ) : (
                 <RegisterDialog />
