@@ -41,65 +41,80 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Toggle Menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="pr-0">
-              <SheetHeader className="p-6">
-                  <SheetTitle className="sr-only">Menu</SheetTitle>
-                  <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
-                  <Logo />
-              </SheetHeader>
-              <div className="flex flex-col h-full">
-                <nav className="flex flex-col items-start gap-4 p-6">
-                  {navLinks.map(({ href, label }) => (
-                    <Link
-                      key={href}
-                      href={href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={cn(
-                        'text-xl font-medium transition-colors hover:text-primary',
-                        pathname === href ? 'text-primary' : 'text-muted-foreground'
-                      )}
-                    >
-                      {label}
-                    </Link>
-                  ))}
-                  {isAuthenticated && (
-                    <Link
-                      href="/dashboard"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={cn(
-                        'text-xl font-medium transition-colors hover:text-primary',
-                        pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
-                      )}
-                    >
-                      Dashboard
-                    </Link>
-                  )}
-                </nav>
-                <div className="mt-auto flex flex-col gap-4 p-6">
-                  <Separator />
-                  <div onClick={() => setIsMobileMenuOpen(false)}>
-                    {isAuthenticated ? <WalletConnect /> : <RegisterDialog onRegister={() => setIsMobileMenuOpen(false)} />}
+        
+        {/* Mobile Nav: Centered Logo */}
+        <div className="grid grid-cols-3 items-center w-full md:hidden">
+          <div className="flex items-center">
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="pr-0">
+                <SheetHeader className="p-6">
+                    <SheetTitle className="sr-only">Menu</SheetTitle>
+                    <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
+                    <Logo />
+                </SheetHeader>
+                <div className="flex flex-col h-full">
+                  <nav className="flex flex-col items-start gap-4 p-6">
+                    {navLinks.map(({ href, label }) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={cn(
+                          'text-xl font-medium transition-colors hover:text-primary',
+                          pathname === href ? 'text-primary' : 'text-muted-foreground'
+                        )}
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                    {isAuthenticated && (
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={cn(
+                          'text-xl font-medium transition-colors hover:text-primary',
+                          pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
+                        )}
+                      >
+                        Dashboard
+                      </Link>
+                    )}
+                  </nav>
+                  <div className="mt-auto flex flex-col gap-4 p-6">
+                    <Separator />
+                    <div onClick={() => setIsMobileMenuOpen(false)}>
+                      {isAuthenticated ? <WalletConnect /> : <RegisterDialog onRegister={() => setIsMobileMenuOpen(false)} />}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-          <div className="hidden md:flex">
-             <Logo />
+              </SheetContent>
+            </Sheet>
+          </div>
+          <div className="flex justify-center">
+            <Logo />
+          </div>
+          <div className="flex items-center justify-end">
+            {isAuthenticated ? (
+              <WalletConnect />
+            ) : (
+              <RegisterDialog />
+            )}
           </div>
         </div>
+
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-2">
+            <Logo />
+        </div>
         
-        <div className="flex flex-1 items-center justify-end">
-            {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center space-x-6 text-base font-medium">
+        <div className="hidden md:flex flex-1 items-center justify-end">
+            <nav className="flex items-center space-x-6 text-base font-medium">
               {navLinks.map(({ href, label }) => (
                 <Link
                   key={href}
@@ -112,7 +127,7 @@ export default function Navbar() {
                   {label}
                 </Link>
               ))}
-               {isAuthenticated && (
+              {isAuthenticated && (
                 <Link
                     href="/dashboard"
                     className={cn(
@@ -126,9 +141,7 @@ export default function Navbar() {
             </nav>
             <div className="flex items-center gap-4 md:ml-6">
               {isAuthenticated ? (
-                <>
-                    <WalletConnect />
-                </>
+                <WalletConnect />
               ) : (
                 <RegisterDialog />
               )}

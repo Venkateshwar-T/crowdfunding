@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
@@ -84,8 +85,8 @@ export function WalletConnect() {
     <AlertDialog>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-             <Avatar className="h-10 w-10">
+          <Button variant="ghost" className="relative h-10 w-10 md:h-12 md:w-12 rounded-full">
+             <Avatar className="h-10 w-10 md:h-12 md:w-12">
                 <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
                 <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
             </Avatar>
