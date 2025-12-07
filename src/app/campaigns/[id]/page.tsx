@@ -24,6 +24,8 @@ import { FAssetIcon } from "@/components/shared/FAssetIcon";
 import { ProgressBar } from "@/components/shared/ProgressBar";
 import { PriceTicker } from "@/components/shared/PriceTicker";
 import { RegisterDialog } from '@/components/shared/RegisterDialog';
+import { useLoader } from '@/contexts/LoaderContext';
+
 
 // Data & Types
 import { mockPriceFeeds } from "@/lib/mock-data";
@@ -31,7 +33,7 @@ import { type Campaign, type Creator } from "@/lib/types";
 import { useUser } from '@/firebase';
 
 // Blockchain
-import { useAccount, useReadContract, useReadContracts, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import CampaignABI from '@/lib/abi/Campaign.json';
 import FdcABI from '@/lib/abi/MockFdcVerifier.json';
 import { type Abi, formatEther, parseEther } from "viem";
@@ -110,6 +112,7 @@ export default function CampaignDetailPage() {
   const { user: currentUser } = useUser();
   const { address: userAddress, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
+  const { showLoader, hideLoader } = useLoader();
 
   const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
   const [creatorInfo, setCreatorInfo] = useState<Creator | null>(null);
@@ -117,7 +120,6 @@ export default function CampaignDetailPage() {
   // Contribution State
   const [selectedAssetSymbol, setSelectedAssetSymbol] = useState<string>('');
   const [amount, setAmount] = useState('');
-  const [isApproving, setIsApproving] = useState(false);
   
   const isAuthenticated = isConnected && !!currentUser;
 
@@ -155,7 +157,31 @@ export default function CampaignDetailPage() {
 
 
   // --- WRITE HOOKS ---
-  const { writeContractAsync } = useWriteContract();
+    const { data: approveHash, writeContractAsync: approveAsync, isPending: isApproving } = useWriteContract();
+    const { data: contributeHash, writeContractAsync: contributeAsync, isPending: isContributing } = useWriteContract();
+
+    // Show loader when waiting for wallet confirmation
+    useEffect(() => {
+        if (isApproving || isContributing) {
+            showLoader("Waiting for Confirmation");
+        } else {
+            hideLoader();
+        }
+    }, [isApproving, isContributing, showLoader, hideLoader]);
+
+    // Show loader when transaction is confirming
+    const { isLoading: isApproveConfirming } = useWaitForTransactionReceipt({ hash: approveHash });
+    const { isLoading: isContributeConfirming } = useWaitForTransactionReceipt({ hash: contributeHash });
+
+    useEffect(() => {
+        if (isApproveConfirming) {
+            showLoader("Approving transaction...");
+        } else if (isContributeConfirming) {
+            showLoader("Confirming contribution...");
+        } else if (!isApproving && !isContributing) {
+            hideLoader();
+        }
+    }, [isApproveConfirming, isContributeConfirming, isApproving, isContributing, showLoader, hideLoader]);
 
   // Effect to process blockchain data
   useEffect(() => {
@@ -263,21 +289,21 @@ export default function CampaignDetailPage() {
         const amountWei = parseEther(amount); 
 
         // Step 1: Approve
-        setIsApproving(true);
         toast({ title: "Step 1/2: Approving", description: `Please sign the transaction to approve usage of ${selectedAssetSymbol}.` });
         
-        await writeContractAsync({
+        const approveTxHash = await approveAsync({
             address: assetAddress as `0x${string}`,
             abi: ERC20_ABI,
             functionName: 'approve',
             args: [id as `0x${string}`, amountWei]
         });
         
+        if (!approveTxHash) { throw new Error("Approval failed"); }
+        
         toast({ title: "Approved!", description: "Now please confirm the donation." });
-        setIsApproving(false);
 
         // Step 2: Contribute
-        await writeContractAsync({
+        await contributeAsync({
             address: id as `0x${string}`,
             abi: CampaignABI as Abi,
             functionName: 'contribute',
@@ -290,7 +316,7 @@ export default function CampaignDetailPage() {
     } catch (e: any) {
         console.error(e);
         toast({ title: "Failed", description: e.shortMessage || e.message, variant: "destructive" });
-        setIsApproving(false);
+        hideLoader();
     }
   };
 
@@ -311,7 +337,7 @@ export default function CampaignDetailPage() {
   const priceFeed = mockPriceFeeds.find(f => f.asset === selectedAssetSymbol);
   const estUsdValue = priceFeed && amount ? (Number(amount) * priceFeed.price).toFixed(2) : "0.00";
 
-  const isDonateDisabled = isApproving || !amount || Number(amount) <= 0 || (campaign.requiresFdc && !isFdcVerified);
+  const isDonateButtonDisabled = isApproving || isContributing || !amount || Number(amount) <= 0 || (campaign.requiresFdc && !isFdcVerified);
 
   return (
     <div className="bg-background">
@@ -421,8 +447,8 @@ export default function CampaignDetailPage() {
 
                     {isAuthenticated ? (
                       <>
-                       <Button className="w-full" size="lg" onClick={handleContribute} disabled={isDonateDisabled}>
-                         {isApproving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Approving...</> : 'Donate Now'}
+                       <Button className="w-full" size="lg" onClick={handleContribute} disabled={isDonateButtonDisabled}>
+                         {(isApproving || isContributing) ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Waiting...</> : 'Donate Now'}
                        </Button>
                         {campaign.requiresFdc && (
                             isFdcVerified ? (

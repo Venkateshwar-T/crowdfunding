@@ -29,6 +29,7 @@ import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { FACTORY_ADDRESS, MOCK_TOKENS } from '@/lib/constants';
 import { useUser } from '@/firebase';
 import { RegisterDialog } from '@/components/shared/RegisterDialog';
+import { useLoader } from '@/contexts/LoaderContext';
 
 const milestoneSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -77,6 +78,7 @@ export default function CreateCampaignPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isOtherCategory, setIsOtherCategory] = useState(false);
+  const { showLoader, hideLoader } = useLoader();
 
   const { isConnected } = useAccount();
   const { user } = useUser();
@@ -89,6 +91,17 @@ export default function CreateCampaignPage() {
   const { isLoading: isConfirming, isSuccess, error: receiptError } = useWaitForTransactionReceipt({ 
     hash 
   });
+
+  useEffect(() => {
+    if (isPending) {
+        showLoader("Waiting for Confirmation");
+    } else if (isConfirming) {
+        showLoader("Deploying Campaign...");
+    } else {
+        hideLoader();
+    }
+  }, [isPending, isConfirming, showLoader, hideLoader]);
+
 
   const form = useForm<CampaignFormValues>({
     resolver: zodResolver(campaignFormSchema),
@@ -386,13 +399,9 @@ export default function CreateCampaignPage() {
 
             {isAuthenticated ? (
                 <Button type="submit" size="lg" className="w-full" disabled={isPending || isConfirming}>
-                {isPending ? (
+                {isPending || isConfirming ? (
                     <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Confirm in Wallet...
-                    </>
-                ) : isConfirming ? (
-                    <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deploying Campaign...
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please Wait...
                     </>
                 ) : (
                     'Create Campaign'
