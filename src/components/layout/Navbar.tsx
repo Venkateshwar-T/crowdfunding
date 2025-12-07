@@ -95,8 +95,7 @@ export default function Navbar() {
           </SheetContent>
         </Sheet>
         
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
+        <div className="flex flex-1 items-center justify-end">
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
               {navLinks.map(({ href, label }) => (
@@ -111,23 +110,23 @@ export default function Navbar() {
                   {label}
                 </Link>
               ))}
-              {isAuthenticated && (
-                 <Link
-                  href="/dashboard"
-                  className={cn(
-                    'transition-colors hover:text-primary',
-                    pathname === '/dashboard' ? 'text-foreground' : 'text-muted-foreground'
-                  )}
-                >
-                  Dashboard
-                </Link>
+              {isAuthenticated ? (
+                <>
+                    <Link
+                        href="/dashboard"
+                        className={cn(
+                        'transition-colors hover:text-primary',
+                        pathname === '/dashboard' ? 'text-foreground' : 'text-muted-foreground'
+                        )}
+                    >
+                        Dashboard
+                    </Link>
+                    <WalletConnect />
+                </>
+              ) : (
+                <RegisterDialog />
               )}
             </nav>
-          </div>
-          
-          <div className="items-center gap-2">
-             {isAuthenticated ? <WalletConnect /> : <RegisterDialog />}
-          </div>
         </div>
       </div>
     </header>
