@@ -2,16 +2,17 @@
 
 import * as React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider } from 'wagmi';
+import { WagmiProvider, createConfig } from 'wagmi';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
-import { config } from '@/lib/config';
 import '@rainbow-me/rainbowkit/styles.css';
 import { LoaderProvider } from '@/contexts/LoaderContext';
 import { GlobalLoader } from '@/components/shared/GlobalLoader';
-
-const queryClient = new QueryClient();
+import { config as wagmiConfig } from '@/lib/config';
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  const [config] = React.useState(() => wagmiConfig);
+  const [queryClient] = React.useState(() => new QueryClient());
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
