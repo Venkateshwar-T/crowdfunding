@@ -97,13 +97,13 @@ export default function Navbar() {
         
         <div className="flex flex-1 items-center justify-end">
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+            <nav className="hidden md:flex items-center space-x-4 text-sm font-medium">
               {navLinks.map(({ href, label }) => (
                 <Link
                   key={href}
                   href={href}
                   className={cn(
-                    'transition-colors hover:text-primary',
+                    'transition-colors hover:text-primary whitespace-nowrap',
                     pathname === href ? 'text-foreground' : 'text-muted-foreground'
                   )}
                 >
@@ -121,7 +121,9 @@ export default function Navbar() {
                     >
                         Dashboard
                     </Link>
-                    <WalletConnect />
+                     <div className="ml-4">
+                        <WalletConnect />
+                    </div>
                 </>
               ) : (
                 <RegisterDialog />
