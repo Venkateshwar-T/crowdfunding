@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -124,7 +125,7 @@ export default function Navbar() {
             </nav>
           </div>
           
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="items-center gap-2">
              {isAuthenticated ? <WalletConnect /> : <RegisterDialog />}
           </div>
         </div>

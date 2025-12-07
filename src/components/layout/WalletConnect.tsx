@@ -27,6 +27,7 @@ import { LogOut, Wallet, Landmark, User as UserIcon, Mail } from 'lucide-react';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { FAssetIcon } from '../shared/FAssetIcon';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 // F-Asset addresses from create-campaign page
 const MOCK_TOKENS: Record<string, `0x${string}`> = {
@@ -82,28 +83,35 @@ export function WalletConnect() {
     <AlertDialog>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="group">
-             <Wallet className="h-5 w-5 mr-2 text-primary transition-colors group-hover:text-primary-foreground" />
-             My Wallet
+          <Button variant="outline" className="group flex items-center gap-2">
+             <Avatar className="h-6 w-6">
+                <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
+                <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
+            </Avatar>
+             Profile
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-72">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          
+          {/* Account Section */}
+          <DropdownMenuLabel>Account</DropdownMenuLabel>
            <DropdownMenuItem disabled>
               <UserIcon className="mr-2 h-4 w-4" />
               <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground">Username</span>
                   <span className="font-mono text-sm truncate">{user.displayName || 'Anonymous'}</span>
               </div>
           </DropdownMenuItem>
            <DropdownMenuItem disabled>
               <Mail className="mr-2 h-4 w-4" />
               <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground">Email</span>
                   <span className="font-mono text-sm truncate">{user.email}</span>
               </div>
           </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          {/* Wallet Section */}
+          <DropdownMenuLabel>Wallet</DropdownMenuLabel>
           <DropdownMenuItem disabled>
               <Wallet className="mr-2 h-4 w-4" />
               <div className="flex flex-col">
@@ -113,7 +121,6 @@ export function WalletConnect() {
           </DropdownMenuItem>
           
           <DropdownMenuSeparator />
-          <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">Balances</DropdownMenuLabel>
           
           {nativeBalance && (
               <DropdownMenuItem>
