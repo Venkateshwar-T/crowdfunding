@@ -23,8 +23,8 @@ const navLinks = [
 
 const Logo = () => (
     <Link href="/" className="flex items-center gap-2">
-        <HandCoins className="h-7 w-7 text-primary" />
-        <span className="font-headline text-xl font-bold tracking-tight">CrowdFund</span>
+        <HandCoins className="h-8 w-8 text-primary" />
+        <span className="font-headline text-2xl font-bold tracking-tight">CrowdFund</span>
     </Link>
 );
 
@@ -39,7 +39,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+      <div className="container flex h-20 items-center">
         <div className="mr-4 hidden md:flex">
           <Logo />
         </div>
@@ -65,7 +65,7 @@ export default function Navbar() {
                     href={href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={cn(
-                      'text-lg font-medium transition-colors hover:text-primary',
+                      'text-xl font-medium transition-colors hover:text-primary',
                       pathname === href ? 'text-primary' : 'text-muted-foreground'
                     )}
                   >
@@ -77,7 +77,7 @@ export default function Navbar() {
                     href="/dashboard"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={cn(
-                      'text-lg font-medium transition-colors hover:text-primary',
+                      'text-xl font-medium transition-colors hover:text-primary',
                       pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
                     )}
                   >
@@ -97,7 +97,7 @@ export default function Navbar() {
         
         <div className="flex flex-1 items-center justify-between md:justify-end">
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center space-x-4 text-sm font-medium">
+            <nav className="hidden md:flex items-center space-x-6 text-base font-medium">
               {navLinks.map(({ href, label }) => (
                 <Link
                   key={href}
@@ -114,7 +114,7 @@ export default function Navbar() {
                 <Link
                     href="/dashboard"
                     className={cn(
-                    'transition-colors hover:text-primary text-sm font-medium',
+                    'transition-colors hover:text-primary',
                     pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
                     )}
                 >
