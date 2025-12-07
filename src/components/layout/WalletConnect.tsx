@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
@@ -73,9 +74,9 @@ export function WalletConnect() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="rounded-full group">
-           <Wallet className="h-5 w-5 text-primary group-hover:text-primary-foreground" />
-           <span className="sr-only">Open wallet menu</span>
+        <Button variant="outline">
+           <Wallet className="h-5 w-5 mr-2 text-primary" />
+           My Wallet
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72">
