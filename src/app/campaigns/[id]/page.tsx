@@ -30,16 +30,13 @@ import { useLoader } from '@/contexts/LoaderContext';
 // Data & Types
 import { mockPriceFeeds } from "@/lib/mock-data";
 import { type Campaign, type Creator } from "@/lib/types";
-import { useUser } from '@/firebase';
+import { useUser } from '@/firebase/auth/use-user';
 
 // Blockchain
 import { useAccount, useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import CampaignABI from '@/lib/abi/Campaign.json';
 import FdcABI from '@/lib/abi/MockFdcVerifier.json';
 import { type Abi, formatEther, parseEther } from "viem";
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { initializeFirebase } from '@/firebase';
-import type { User as FirebaseUser } from 'firebase/auth';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { FACTORY_ADDRESS, MOCK_TOKENS, FDC_VERIFIER_ADDRESS } from '@/lib/constants';
 
@@ -57,41 +54,6 @@ const ERC20_ABI = [
   }
 ] as const;
 
-// A simple in-memory cache to store address-to-user mappings
-const userCache = new Map<string, FirebaseUser>();
-
-async function getFirebaseUserByAddress(address: string): Promise<FirebaseUser | null> {
-    if (userCache.has(address)) {
-        return userCache.get(address) || null;
-    }
-    // In a real app, you would have a backend service to resolve address to a user ID.
-    // For this demo, we'll simulate this by finding the first user.
-    // This is NOT a secure or scalable approach.
-    const { auth } = initializeFirebase();
-    if (!auth) return null;
-
-    // This is a placeholder. A real implementation would query a database
-    // that maps wallet addresses to Firebase UIDs.
-    // Since we can't do that securely on the client, we'll use the currently logged-in user
-    // if their address matches. For others, we can't resolve the name.
-    
-    return new Promise((resolve) => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            unsubscribe();
-            // This is a big simplification. A real app needs a backend to map addresses to UIDs.
-            // We're just checking if the *current* user is the creator.
-            // We can't look up arbitrary users by address from the client.
-            if (user) {
-                 // In a real app, you would have stored the user's wallet address in their profile
-                 // for this lookup. We are assuming the current user is the creator for demo purposes.
-                 userCache.set(address, user);
-                 resolve(user);
-            } else {
-                 resolve(null);
-            }
-        });
-    });
-}
 
 function isValidImageUrl(url: string) {
     if (!url) return false;
@@ -190,10 +152,9 @@ export default function CampaignDetailPage() {
     const [titleRes, imgRes, catRes, currRes, goalRes, deadRes, creatorRes, descRes, detailsRes, reqFdcRes] = campaignData;
 
     if (titleRes?.status === 'success' && creatorRes?.status === 'success') {
-        const acceptedTickers = (detailsRes?.result as any)?.[4] || [];
+        const acceptedTickers = (detailsRes?.result as any)?.[4] as string[] || [];
         const acceptedAssets = acceptedTickers.map((ticker: string) => ({ 
-            symbol: ticker, 
-            name: `Flare ${ticker.replace('F-', '')}` 
+            symbol: ticker
         }));
 
         const creatorAddress = creatorRes.result as string;
@@ -480,7 +441,5 @@ export default function CampaignDetailPage() {
     </div>
   );
 }
-
-    
 
     

@@ -25,9 +25,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
-import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { FACTORY_ADDRESS, MOCK_TOKENS } from '@/lib/constants';
-import { useUser } from '@/firebase';
+import { useUser } from '@/firebase/auth/use-user';
 import { RegisterDialog } from '@/components/shared/RegisterDialog';
 import { useLoader } from '@/contexts/LoaderContext';
 
@@ -83,7 +82,6 @@ export default function CreateCampaignPage() {
   const { isConnected } = useAccount();
   const { user } = useUser();
   const isAuthenticated = isConnected && !!user;
-  const { openConnectModal } = useConnectModal();
 
 
   const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
@@ -145,11 +143,6 @@ export default function CreateCampaignPage() {
   const onSubmit = async (data: CampaignFormValues) => {
     if (!isAuthenticated) {
       toast({ title: "Authentication Required", description: "Please sign in and connect your wallet to create a campaign." });
-      return;
-    }
-
-    if (!isConnected && openConnectModal) {
-      openConnectModal();
       return;
     }
 

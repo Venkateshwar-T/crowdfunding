@@ -1,3 +1,4 @@
+
 export type Creator = {
   id: string;
   name: string;
@@ -6,8 +7,7 @@ export type Creator = {
 };
 
 export type FAsset = {
-  symbol: 'F-BTC' | 'F-XRP' | 'F-DOGE' | 'F-LTC';
-  name: string;
+  symbol: 'F-BTC' | 'F-XRP' | 'F-DOGE' | 'F-LTC' | 'F-USDC';
 };
 
 export type Milestone = {
@@ -64,5 +64,7 @@ export type PriceFeed = {
   price: number;
   change24h: number;
 };
+
+    
 
     

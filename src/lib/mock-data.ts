@@ -1,16 +1,13 @@
-import type { Campaign, User, PriceFeed, Contribution, Creator } from './types';
+import type { User, PriceFeed, Contribution, Creator } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const getImageUrl = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageUrl || 'https://picsum.photos/seed/error/600/400';
-const getImageHint = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageHint || 'placeholder';
 
 const creators: Creator[] = [
   { id: 'creator-1', name: 'Alice Johnson', avatarUrl: getImageUrl('user-avatar-1'), isVerified: true },
   { id: 'creator-2', name: 'Bob Williams', avatarUrl: getImageUrl('user-avatar-2'), isVerified: false },
   { id: 'creator-3', name: 'Charlie Brown', avatarUrl: getImageUrl('user-avatar-3'), isVerified: true },
 ];
-
-export const mockCampaigns: Campaign[] = [];
 
 const mockContributions: Contribution[] = [
     { id: 'c-1', campaignId: '3', campaignTitle: 'Aethelgard: An Open-World RPG', amount: 50, asset: 'F-XRP', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), refundStatus: 'none', votingRights: true },
@@ -36,3 +33,5 @@ export const mockPriceFeeds: PriceFeed[] = [
   { asset: 'F-LTC', price: 85.30, change24h: 1.1 },
   { asset: 'F-USDC', price: 1.00, change24h: 0.01 },
 ];
+
+    
