@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
 import { differenceInDays } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle, ShieldAlert } from "lucide-react";
 
 // UI Components
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,14 +31,15 @@ import { type Campaign, type Creator } from "@/lib/types";
 import { useUser } from '@/firebase';
 
 // Blockchain
-import { useAccount, useReadContracts, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useReadContracts, useWriteContract } from "wagmi";
 import CampaignABI from '@/lib/abi/Campaign.json';
+import FdcABI from '@/lib/abi/MockFdcVerifier.json';
 import { type Abi, formatEther, parseEther } from "viem";
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { FACTORY_ADDRESS, MOCK_TOKENS } from '@/lib/constants';
+import { FACTORY_ADDRESS, MOCK_TOKENS, FDC_VERIFIER_ADDRESS } from '@/lib/constants';
 
 // Minimal ERC20 ABI for Approval
 const ERC20_ABI = [
@@ -106,7 +108,7 @@ export default function CampaignDetailPage() {
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id; 
   const { toast } = useToast();
   const { user: currentUser } = useUser();
-  const { isConnected } = useAccount();
+  const { address: userAddress, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
 
   const [campaign, setCampaign] = useState<Campaign | null | undefined>(undefined);
@@ -137,10 +139,20 @@ export default function CampaignDetailPage() {
       { ...campaignContractConfig, functionName: 'deadline' },
       { ...campaignContractConfig, functionName: 'creator' },
       { ...campaignContractConfig, functionName: 'description' },
-      { ...campaignContractConfig, functionName: 'getDetails' }, 
+      { ...campaignContractConfig, functionName: 'getDetails' },
+      { ...campaignContractConfig, functionName: 'requiresFdc' },
     ],
     query: { enabled: !!isBlockchainId }
   });
+  
+  const { data: isFdcVerified } = useReadContract({
+    address: FDC_VERIFIER_ADDRESS as `0x${string}`,
+    abi: FdcABI as Abi,
+    functionName: 'checkVerification',
+    args: [userAddress],
+    query: { enabled: !!userAddress }
+  });
+
 
   // --- WRITE HOOKS ---
   const { writeContractAsync } = useWriteContract();
@@ -149,7 +161,7 @@ export default function CampaignDetailPage() {
   useEffect(() => {
     if (!id || !isBlockchainId || !campaignData) return;
 
-    const [titleRes, imgRes, catRes, currRes, goalRes, deadRes, creatorRes, descRes, detailsRes] = campaignData;
+    const [titleRes, imgRes, catRes, currRes, goalRes, deadRes, creatorRes, descRes, detailsRes, reqFdcRes] = campaignData;
 
     if (titleRes?.status === 'success' && creatorRes?.status === 'success') {
         const acceptedTickers = (detailsRes?.result as any)?.[4] || [];
@@ -161,7 +173,7 @@ export default function CampaignDetailPage() {
         const creatorAddress = creatorRes.result as string;
         
         const imageUrlFromChain = (imgRes?.result as string) || '';
-        const finalImageUrl = isValidImageUrl(imageUrlFromChain) ? imageUrlFromChain : "https://picsum.photos/seed/1/600/400";
+        const finalImageUrl = isValidImageUrl(imageUrlFromChain) ? imageUrlFromChain : `https://picsum.photos/seed/${id}/600/400`;
 
 
         setCampaign({
@@ -183,7 +195,7 @@ export default function CampaignDetailPage() {
             status: 'active',
             acceptedAssets: acceptedAssets,
             milestones: [], 
-            requiresFdc: false,
+            requiresFdc: (reqFdcRes?.result as boolean) || false,
         });
         
         if (acceptedAssets.length > 0 && !selectedAssetSymbol) {
@@ -230,8 +242,17 @@ export default function CampaignDetailPage() {
         toast({ title: "Authentication Required", description: "Please sign in and connect your wallet to donate." });
         return;
     }
-    if (!amount || !selectedAssetSymbol || !id) return;
+    if (!campaign || !amount || !selectedAssetSymbol || !id) return;
     
+    if (campaign.requiresFdc && !isFdcVerified) {
+        toast({
+            title: "Verification Required",
+            description: "This campaign requires FDC identity verification. Please complete it in your dashboard.",
+            variant: "destructive"
+        });
+        return;
+    }
+
     const assetAddress = MOCK_TOKENS[selectedAssetSymbol];
     if (!assetAddress || assetAddress.startsWith("0x000")) {
         toast({ title: "Configuration Error", description: `No contract address found for ${selectedAssetSymbol}`, variant: "destructive" });
@@ -290,6 +311,8 @@ export default function CampaignDetailPage() {
   const priceFeed = mockPriceFeeds.find(f => f.asset === selectedAssetSymbol);
   const estUsdValue = priceFeed && amount ? (Number(amount) * priceFeed.price).toFixed(2) : "0.00";
 
+  const isDonateDisabled = isApproving || !amount || (campaign.requiresFdc && !isFdcVerified);
+
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -336,7 +359,7 @@ export default function CampaignDetailPage() {
                   </Card>
               </TabsContent>
             </Tabs>
-
+            
             {priceFeed && (
               <div className="pt-8">
                 <PriceTicker feed={priceFeed} />
@@ -397,9 +420,24 @@ export default function CampaignDetailPage() {
                     </div>
 
                     {isAuthenticated ? (
-                       <Button className="w-full" size="lg" onClick={handleContribute} disabled={isApproving || !amount}>
+                      <>
+                       <Button className="w-full" size="lg" onClick={handleContribute} disabled={isDonateDisabled}>
                          {isApproving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Approving...</> : 'Donate Now'}
                        </Button>
+                        {campaign.requiresFdc && (
+                            isFdcVerified ? (
+                                <div className="mt-2 flex items-center justify-center text-sm text-green-600">
+                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                    <span>FDC Verified: You are eligible to donate.</span>
+                                </div>
+                            ) : (
+                                <div className="mt-2 flex items-center justify-center text-sm text-yellow-600 text-center">
+                                    <ShieldAlert className="mr-2 h-4 w-4 flex-shrink-0" />
+                                    <span>Verification required. <Link href="/dashboard?tab=identity" className="underline font-semibold">Verify Now</Link></span>
+                                </div>
+                            )
+                        )}
+                      </>
                     ) : (
                        <RegisterDialog>
                            <Button className="w-full" size="lg">
