@@ -34,8 +34,9 @@ const MOCK_TOKENS: Record<string, `0x${string}`> = {
     'F-BTC': "0x76E4b5DDD42BD84161f7f298D35723FbC576e861",
     'F-XRP': "0xBAf7dE33f98B018055EA5aCDfBDcA9be11780d06",
     'F-USDC': "0x94f41643DB84e373491aE358e24278a562307E30",
+    'F-LTC': "0x5fF8aB4e4279584347238541257121235bA38C63",
 };
-const TOKEN_SYMBOLS = ['F-BTC', 'F-XRP', 'F-USDC'];
+const TOKEN_SYMBOLS = ['F-BTC', 'F-XRP', 'F-LTC', 'F-USDC'];
 
 
 export function WalletConnect() {
@@ -83,12 +84,11 @@ export function WalletConnect() {
     <AlertDialog>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="group flex items-center gap-2">
-             <Avatar className="h-6 w-6">
+          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+             <Avatar className="h-8 w-8">
                 <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
                 <AvatarFallback>{user.displayName?.charAt(0)}</AvatarFallback>
             </Avatar>
-             Profile
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-72">
@@ -123,7 +123,7 @@ export function WalletConnect() {
           <DropdownMenuSeparator />
           
           {nativeBalance && (
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                   <Landmark className="mr-2 h-4 w-4" />
                   <div className="flex flex-1 justify-between">
                        <span>{nativeBalance.symbol}</span>
@@ -133,7 +133,7 @@ export function WalletConnect() {
           )}
           {fAssetBalances.map((balance) => (
               balance &&
-              <DropdownMenuItem key={balance.symbol}>
+              <DropdownMenuItem key={balance.symbol} disabled>
                   <FAssetIcon asset={balance.symbol as any} className="mr-2 h-4 w-4" />
                    <div className="flex flex-1 justify-between">
                        <span>{balance.symbol}</span>
