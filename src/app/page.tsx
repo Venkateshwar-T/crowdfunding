@@ -49,7 +49,7 @@ export default function Home() {
               Decentralized Crowdfunding, <br /> Powered by Flare.
             </h1>
             <p className="mt-4 max-w-2xl text-lg md:text-xl text-primary-foreground/80 mx-auto md:mx-0">
-              Launch your innovative projects using FAssets like BTC & XRP, secured by the Flare Time Series Oracle.
+              Launch your campaigns using FAssets like BTC & XRP, secured by the FDC(Flare Data Connector) and Flare Time Series Oracle.
             </p>
           </div>
           <div className="flex flex-col gap-4">
