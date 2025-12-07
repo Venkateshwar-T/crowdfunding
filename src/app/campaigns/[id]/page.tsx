@@ -90,7 +90,8 @@ async function getFirebaseUserByAddress(address: string): Promise<FirebaseUser |
 }
 
 function isValidImageUrl(url: string) {
-    const allowedHosts = ['placehold.co', 'images.unsplash.com', 'picsum.photos'];
+    if (!url) return false;
+    const allowedHosts = ['images.unsplash.com', 'picsum.photos'];
     try {
         const urlObj = new URL(url);
         return allowedHosts.includes(urlObj.hostname);
@@ -160,7 +161,7 @@ export default function CampaignDetailPage() {
         const creatorAddress = creatorRes.result as string;
         
         const imageUrlFromChain = (imgRes?.result as string) || '';
-        const finalImageUrl = isValidImageUrl(imageUrlFromChain) ? imageUrlFromChain : "https://placehold.co/600x400";
+        const finalImageUrl = isValidImageUrl(imageUrlFromChain) ? imageUrlFromChain : "https://picsum.photos/seed/1/600/400";
 
 
         setCampaign({
@@ -176,7 +177,7 @@ export default function CampaignDetailPage() {
             creator: { // This will be replaced by creatorInfo state
                 id: creatorAddress,
                 name: creatorAddress.slice(0, 8) + "...",
-                avatarUrl: "https://placehold.co/100",
+                avatarUrl: "https://picsum.photos/seed/2/100/100",
                 isVerified: false
             },
             status: 'active',
@@ -207,7 +208,7 @@ export default function CampaignDetailPage() {
              setCreatorInfo({
                  id: creatorAddress,
                  name: currentUser.displayName || "Anonymous Creator",
-                 avatarUrl: currentUser.photoURL || "https://placehold.co/100",
+                 avatarUrl: currentUser.photoURL || "https://picsum.photos/seed/3/100/100",
                  isVerified: currentUser.emailVerified // Example verification
              });
         } else {
@@ -215,7 +216,7 @@ export default function CampaignDetailPage() {
             setCreatorInfo({
                 id: creatorAddress,
                 name: creatorAddress.slice(0, 8) + "...",
-                avatarUrl: "https://placehold.co/100",
+                avatarUrl: "https://picsum.photos/seed/4/100/100",
                 isVerified: false,
             });
         }
@@ -312,7 +313,7 @@ export default function CampaignDetailPage() {
             </div>
 
             <div className="relative h-96 w-full rounded-xl overflow-hidden shadow-lg border">
-              <Image src={campaign.imageUrl} alt={campaign.title} fill className="object-cover" />
+              <Image src={campaign.imageUrl} alt={campaign.title} fill className="object-cover" data-ai-hint={campaign.imageHint} />
             </div>
 
             <Tabs defaultValue="story" className="w-full">
@@ -419,5 +420,3 @@ export default function CampaignDetailPage() {
     </div>
   );
 }
-
-    

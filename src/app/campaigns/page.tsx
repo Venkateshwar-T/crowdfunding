@@ -22,6 +22,17 @@ import { FACTORY_ADDRESS, MOCK_TOKENS } from '@/lib/constants';
 const categories = ['All', 'Tech', 'Medical', 'DeFi', 'Gaming', 'Other'];
 const statuses = ['All', 'active', 'successful', 'expired'];
 
+function isValidImageUrl(url: string) {
+    if (!url) return false;
+    const allowedHosts = ['images.unsplash.com', 'picsum.photos'];
+    try {
+        const urlObj = new URL(url);
+        return allowedHosts.includes(urlObj.hostname);
+    } catch (e) {
+        return false;
+    }
+}
+
 export default function ExploreCampaignsPage() {
   const { data: campaignAddresses } = useReadContract({
     address: FACTORY_ADDRESS as `0x${string}`,
@@ -64,11 +75,14 @@ export default function ExploreCampaignsPage() {
             const goalWei = campaignData[base + 4]?.result as bigint || BigInt(0);
             const deadlineSeconds = Number(campaignData[base + 5]?.result || 0);
 
+            const imageUrlFromChain = campaignData[base + 1].result as string || "";
+            const finalImageUrl = isValidImageUrl(imageUrlFromChain) ? imageUrlFromChain : `https://picsum.photos/seed/${i + 10}/600/400`;
+
             campaigns.push({
                 id: addresses[i],
                 title: campaignData[base].result as string || "Untitled",
                 description: "Blockchain Campaign",
-                imageUrl: campaignData[base + 1].result as string || "https://placehold.co/600x400",
+                imageUrl: finalImageUrl,
                 imageHint: "blockchain project",
                 category: (campaignData[base + 2].result as string || "Tech"),
                 currentFunding: Number(formatEther(currentFundingWei)),
@@ -77,7 +91,7 @@ export default function ExploreCampaignsPage() {
                 creator: { 
                     id: "creator-chain",
                     name: (campaignData[base + 6].result as string)?.slice(0, 6) + "...", 
-                    avatarUrl: "https://placehold.co/100", 
+                    avatarUrl: `https://picsum.photos/seed/c${i}/100/100`, 
                     isVerified: false 
                 },
                 status: 'active', // This would need more complex logic to determine status
@@ -217,5 +231,3 @@ export default function ExploreCampaignsPage() {
     </div>
   );
 }
-
-    
