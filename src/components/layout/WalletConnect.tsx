@@ -74,8 +74,8 @@ export function WalletConnect() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">
-           <Wallet className="h-5 w-5 mr-2 text-primary" />
+        <Button variant="outline" className="group">
+           <Wallet className="h-5 w-5 mr-2 text-primary transition-colors group-hover:text-primary-foreground" />
            My Wallet
         </Button>
       </DropdownMenuTrigger>
