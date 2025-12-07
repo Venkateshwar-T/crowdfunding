@@ -28,7 +28,8 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { FACTORY_ADDRESS, MOCK_TOKENS } from '@/lib/constants';
-import { useUser } from '@/firebase';
+import { useUser, useStorage } from '@/firebase';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { RegisterDialog } from '@/components/shared/RegisterDialog';
 
 const milestoneSchema = z.object({
@@ -77,12 +78,15 @@ const availableAssets = [
 export default function CreateCampaignPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [imageUrl, setImageUrl] = useState<string>("https://placehold.co/600x400/png");
+  const storage = useStorage();
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isOtherCategory, setIsOtherCategory] = useState(false);
 
   const { isConnected } = useAccount();
   const { user } = useUser();
   const isAuthenticated = isConnected && !!user;
+  const { openConnectModal } = useConnectModal();
+
 
   const { data: hash, writeContract, isPending, error: writeError } = useWriteContract();
   
@@ -130,34 +134,49 @@ export default function CreateCampaignPage() {
 
   const handleImageUpload = (file: File | null) => {
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        if (dataUrl.length > 1024 * 1024) { // 1MB limit
+        if (file.size > 2 * 1024 * 1024) { // 2MB limit for safety
              toast({
                 title: "Image too large",
-                description: "Please upload an image smaller than 1MB. Larger images may cause the transaction to fail due to high gas fees.",
+                description: "Please upload an image smaller than 2MB.",
                 variant: "destructive"
              });
-             // Also clear the file input if you have a way to do so
              form.setValue('image', null);
-             setImageUrl("https://placehold.co/600x400/png");
+             setImageFile(null);
         } else {
-             setImageUrl(dataUrl);
+             setImageFile(file);
+             form.setValue('image', file);
         }
-      };
-      reader.readAsDataURL(file);
-      form.setValue('image', file);
     } else {
       form.setValue('image', null);
-      setImageUrl("https://placehold.co/600x400/png");
+      setImageFile(null);
     }
   }
 
-  const onSubmit = (data: CampaignFormValues) => {
+  const onSubmit = async (data: CampaignFormValues) => {
     if (!isAuthenticated) {
-        toast({ title: "Authentication Required", description: "Please sign in and connect your wallet to create a campaign." });
-        return;
+      toast({ title: "Authentication Required", description: "Please sign in and connect your wallet to create a campaign." });
+      return;
+    }
+
+    if (!isConnected && openConnectModal) {
+      openConnectModal();
+      return;
+    }
+
+    let finalImageUrl = "https://placehold.co/600x400/png";
+
+    if (imageFile && storage) {
+        toast({ title: "Uploading Image...", description: "Please wait while we upload your campaign image."});
+        const storageRef = ref(storage, `campaign-images/${Date.now()}-${imageFile.name}`);
+        try {
+            const uploadResult = await uploadBytes(storageRef, imageFile);
+            finalImageUrl = await getDownloadURL(uploadResult.ref);
+             toast({ title: "Image Uploaded!", description: "Your image is now ready."});
+        } catch (error) {
+            console.error("Firebase Storage Error:", error);
+            toast({ title: "Image Upload Failed", description: "Could not upload image. Please try again.", variant: "destructive" });
+            return; // Stop submission if image upload fails
+        }
     }
 
     const deadlineDate = new Date(data.deadline);
@@ -184,7 +203,7 @@ export default function CreateCampaignPage() {
         args: [
             data.title,
             data.description,
-            imageUrl,
+            finalImageUrl,
             category,
             BigInt(data.fundingGoal) * BigInt(10**18),
             BigInt(durationDays),
@@ -314,7 +333,7 @@ export default function CreateCampaignPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Campaign Image</CardTitle>
-                    <CardDescription>A picture is worth a thousand words. Using large images may result in high gas fees.</CardDescription>
+                    <CardDescription>A picture is worth a thousand words. Upload an image for your campaign (Max 2MB).</CardDescription>
                 </CardHeader>
                 <CardContent>
                      <FormField name="image" control={form.control} render={() => (
