@@ -11,7 +11,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileUpload } from '@/components/shared/FileUpload';
 import { MilestoneCard } from '@/components/shared/MilestoneCard';
 import { PlusCircle, Loader2, CalendarIcon } from 'lucide-react';
 import { FAssetIcon } from '@/components/shared/FAssetIcon';
@@ -48,7 +47,7 @@ const campaignFormSchema = z.object({
   deadline: z.date({
     required_error: "A deadline date is required.",
   }),
-  image: z.any().optional(),
+  image: z.string().url({ message: "Please enter a valid URL." }),
   milestones: z.array(milestoneSchema).optional(),
   requiresFdc: z.boolean().default(false),
   acceptedAssets: z.array(z.string()).min(1, 'Select at least one asset'),
@@ -77,7 +76,6 @@ const availableAssets = [
 export default function CreateCampaignPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isOtherCategory, setIsOtherCategory] = useState(false);
 
   const { isConnected } = useAccount();
@@ -100,6 +98,7 @@ export default function CreateCampaignPage() {
       category: '',
       otherCategory: '',
       fundingGoal: 1000,
+      image: '',
       requiresFdc: false,
       acceptedAssets: [],
       milestones: [],
@@ -130,26 +129,6 @@ export default function CreateCampaignPage() {
     }
   }, [isSuccess, writeError, receiptError, toast, router]);
 
-  const handleImageUpload = (file: File | null) => {
-    if (file) {
-        if (file.size > 2 * 1024 * 1024) { // 2MB limit for safety
-             toast({
-                title: "Image too large",
-                description: "Please upload an image smaller than 2MB.",
-                variant: "destructive"
-             });
-             form.setValue('image', null);
-             setImageFile(null);
-        } else {
-             setImageFile(file);
-             form.setValue('image', file);
-        }
-    } else {
-      form.setValue('image', null);
-      setImageFile(null);
-    }
-  }
-
   const onSubmit = async (data: CampaignFormValues) => {
     if (!isAuthenticated) {
       toast({ title: "Authentication Required", description: "Please sign in and connect your wallet to create a campaign." });
@@ -160,9 +139,6 @@ export default function CreateCampaignPage() {
       openConnectModal();
       return;
     }
-
-    // Use a placeholder image URL instead of uploading to Firebase Storage.
-    const finalImageUrl = "https://placehold.co/600x400/png";
 
     const deadlineDate = new Date(data.deadline);
     const today = new Date();
@@ -188,7 +164,7 @@ export default function CreateCampaignPage() {
         args: [
             data.title,
             data.description,
-            finalImageUrl,
+            data.image,
             category,
             BigInt(data.fundingGoal) * BigInt(10**18),
             BigInt(durationDays),
@@ -318,13 +294,14 @@ export default function CreateCampaignPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Campaign Image</CardTitle>
-                    <CardDescription>A picture is worth a thousand words. Upload an image for your campaign (Max 2MB).</CardDescription>
+                    <CardDescription>Enter a public URL for your campaign image (e.g. from Unsplash).</CardDescription>
                 </CardHeader>
                 <CardContent>
-                     <FormField name="image" control={form.control} render={() => (
+                     <FormField name="image" control={form.control} render={({ field }) => (
                         <FormItem>
+                            <FormLabel>Image URL</FormLabel>
                             <FormControl>
-                                <FileUpload onFileSelect={handleImageUpload} />
+                                <Input placeholder="https://images.unsplash.com/..." {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -434,3 +411,5 @@ export default function CreateCampaignPage() {
     </div>
   );
 }
+
+    
