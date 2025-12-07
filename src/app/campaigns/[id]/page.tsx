@@ -311,7 +311,7 @@ export default function CampaignDetailPage() {
   const priceFeed = mockPriceFeeds.find(f => f.asset === selectedAssetSymbol);
   const estUsdValue = priceFeed && amount ? (Number(amount) * priceFeed.price).toFixed(2) : "0.00";
 
-  const isDonateDisabled = isApproving || !amount || (campaign.requiresFdc && !isFdcVerified);
+  const isDonateDisabled = isApproving || !amount || Number(amount) <= 0 || (campaign.requiresFdc && !isFdcVerified);
 
   return (
     <div className="bg-background">
@@ -454,5 +454,7 @@ export default function CampaignDetailPage() {
     </div>
   );
 }
+
+    
 
     
