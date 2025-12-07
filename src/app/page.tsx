@@ -42,14 +42,16 @@ export default function Home() {
            />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background to-black/60" />
-        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
-          <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter leading-tight">
-            Decentralized Crowdfunding, <br /> Powered by Flare.
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg md:text-xl text-primary-foreground/80">
-            Launch your innovative projects using FAssets like BTC & XRP, secured by the Flare Time Series Oracle.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
+        <div className="relative container mx-auto z-10 flex flex-row items-center justify-between h-full text-left px-4">
+          <div>
+            <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter leading-tight">
+              Decentralized Crowdfunding, <br /> Powered by Flare.
+            </h1>
+            <p className="mt-4 max-w-2xl text-lg md:text-xl text-primary-foreground/80">
+              Launch your innovative projects using FAssets like BTC & XRP, secured by the Flare Time Series Oracle.
+            </p>
+          </div>
+          <div className="flex flex-col gap-4">
             <Button asChild size="lg" className="font-semibold text-lg py-7 px-8">
               <Link href="/create-campaign">
                 Create a Campaign <ArrowRight className="ml-2 h-5 w-5" />
