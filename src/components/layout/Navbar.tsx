@@ -95,7 +95,7 @@ export default function Navbar() {
           </SheetContent>
         </Sheet>
         
-        <div className="flex flex-1 items-center justify-end">
+        <div className="flex flex-1 items-center justify-between md:justify-end">
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center space-x-4 text-sm font-medium">
               {navLinks.map(({ href, label }) => (
@@ -104,19 +104,21 @@ export default function Navbar() {
                   href={href}
                   className={cn(
                     'transition-colors hover:text-primary whitespace-nowrap',
-                    pathname === href ? 'text-foreground' : 'text-muted-foreground'
+                    pathname === href ? 'text-primary' : 'text-muted-foreground'
                   )}
                 >
                   {label}
                 </Link>
               ))}
+            </nav>
+            <div className="hidden md:flex items-center gap-4">
               {isAuthenticated ? (
                 <>
                     <Link
                         href="/dashboard"
                         className={cn(
-                        'transition-colors hover:text-primary',
-                        pathname === '/dashboard' ? 'text-foreground' : 'text-muted-foreground'
+                        'transition-colors hover:text-primary text-sm font-medium',
+                        pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
                         )}
                     >
                         Dashboard
@@ -128,7 +130,7 @@ export default function Navbar() {
               ) : (
                 <RegisterDialog />
               )}
-            </nav>
+            </div>
         </div>
       </div>
     </header>
