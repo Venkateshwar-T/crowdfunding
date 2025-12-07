@@ -6,6 +6,8 @@ import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 import { config } from '@/lib/config';
 import '@rainbow-me/rainbowkit/styles.css';
+import { LoaderProvider } from '@/contexts/LoaderContext';
+import { GlobalLoader } from '@/components/shared/GlobalLoader';
 
 const queryClient = new QueryClient();
 
@@ -14,7 +16,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={darkTheme()}>
-          {children}
+          <LoaderProvider>
+            {children}
+            <GlobalLoader />
+          </LoaderProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
