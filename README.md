@@ -56,7 +56,7 @@ The platform uses the FTSO to fetch decentralized, highly accurate, and real-tim
 ## 🚀 Getting Started
 
 ### Prerequisites
-* Node.js v20+
+* Next.js v15+
 * npm or yarn
 * A MetaMask (or similar) wallet configured for **Flare Coston2 Testnet**.
 * A Firebase Project.

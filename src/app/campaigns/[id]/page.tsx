@@ -276,7 +276,7 @@ export default function CampaignDetailPage() {
         
     } catch (e: any) {
         console.error(e);
-        toast({ title: "Failed", description: e.shortMessage || e.message, variant: "destructive" });
+        toast({ title: "Failed", description: e.message, variant: "destructive" });
         hideLoader();
     }
   };
@@ -441,5 +441,7 @@ export default function CampaignDetailPage() {
     </div>
   );
 }
+
+    
 
     

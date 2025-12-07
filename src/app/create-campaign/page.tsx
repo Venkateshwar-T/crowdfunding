@@ -134,7 +134,7 @@ export default function CreateCampaignPage() {
     if (writeError || receiptError) {
       toast({
         title: "Transaction Failed",
-        description: (writeError?.shortMessage || receiptError?.shortMessage || "An unknown error occurred."),
+        description: (writeError?.message || receiptError?.message || "An unknown error occurred."),
         variant: "destructive",
       });
     }
@@ -413,5 +413,7 @@ export default function CreateCampaignPage() {
     </div>
   );
 }
+
+    
 
     

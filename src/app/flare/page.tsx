@@ -13,7 +13,7 @@ const flareFeatures = [
     {
         id: "flare-fdc",
         icon: <Fingerprint className="h-10 w-10 text-primary" />,
-        title: "Flare Decentralized Identity (FDC)",
+        title: "Flare Data Connector (FDC)",
         description: "FDC provides a framework for verifiable, on-chain identity. For platforms like CrowdFund, this means creators can prove their identity without revealing sensitive personal information, and backers can trust that campaigns are run by verified individuals. It's a digital passport for the Web3 world, enhancing trust and security.",
     },
     {
