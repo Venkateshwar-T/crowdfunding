@@ -336,6 +336,12 @@ export default function CampaignDetailPage() {
                   </Card>
               </TabsContent>
             </Tabs>
+
+            {priceFeed && (
+              <div className="pt-8">
+                <PriceTicker feed={priceFeed} />
+              </div>
+            )}
           </div>
 
           {/* Right Column */}
@@ -403,8 +409,6 @@ export default function CampaignDetailPage() {
                     )}
                   </CardContent>
                 </Card>
-                
-                {priceFeed && <PriceTicker feed={priceFeed} />}
              </div>
           </div>
         </div>
