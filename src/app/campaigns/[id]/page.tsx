@@ -320,7 +320,6 @@ export default function CampaignDetailPage() {
               <TabsList>
                   <TabsTrigger value="story">Story</TabsTrigger>
                   <TabsTrigger value="milestones">Milestones</TabsTrigger>
-                  <TabsTrigger value="updates">Updates</TabsTrigger>
               </TabsList>
               <TabsContent value="story">
                   <Card>
@@ -333,13 +332,6 @@ export default function CampaignDetailPage() {
                   <Card>
                       <CardContent className="pt-6 text-center text-muted-foreground">
                       Milestones are managed on-chain.
-                      </CardContent>
-                  </Card>
-              </TabsContent>
-              <TabsContent value="updates">
-                  <Card>
-                      <CardContent className="pt-6 text-center text-muted-foreground">
-                      No updates yet.
                       </CardContent>
                   </Card>
               </TabsContent>
