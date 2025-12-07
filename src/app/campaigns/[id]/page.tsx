@@ -298,8 +298,8 @@ export default function CampaignDetailPage() {
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-8">
             <div className="space-y-4">
-              <Badge variant="secondary">{campaign.category}</Badge>
               <h1 className="font-headline text-4xl font-bold">{campaign.title}</h1>
+              <Badge variant="secondary">{campaign.category}</Badge>
                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span>Created by</span>
                     <span className="font-semibold text-foreground flex items-center gap-2">
@@ -416,3 +416,5 @@ export default function CampaignDetailPage() {
     </div>
   );
 }
+
+    
