@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -39,63 +40,64 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-20 items-center">
-        <div className="mr-4 hidden md:flex">
-          <Logo />
-        </div>
-        
-        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-6 w-6" />
-              <span className="sr-only">Toggle Menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="pr-0">
-            <SheetHeader className="p-6">
-                <SheetTitle className="sr-only">Menu</SheetTitle>
-                <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
-                <Logo />
-            </SheetHeader>
-            <div className="flex flex-col h-full">
-              <nav className="flex flex-col items-start gap-4 p-6">
-                {navLinks.map(({ href, label }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      'text-xl font-medium transition-colors hover:text-primary',
-                      pathname === href ? 'text-primary' : 'text-muted-foreground'
-                    )}
-                  >
-                    {label}
-                  </Link>
-                ))}
-                {isAuthenticated && (
-                   <Link
-                    href="/dashboard"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      'text-xl font-medium transition-colors hover:text-primary',
-                      pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
-                    )}
-                  >
-                    Dashboard
-                  </Link>
-                )}
-              </nav>
-              <div className="mt-auto flex flex-col gap-4 p-6">
-                <Separator />
-                <div onClick={() => setIsMobileMenuOpen(false)}>
-                  {isAuthenticated ? <WalletConnect /> : <RegisterDialog onRegister={() => setIsMobileMenuOpen(false)} />}
+      <div className="container flex h-20 items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="pr-0">
+              <SheetHeader className="p-6">
+                  <SheetTitle className="sr-only">Menu</SheetTitle>
+                  <SheetDescription className="sr-only">Main navigation menu</SheetDescription>
+                  <Logo />
+              </SheetHeader>
+              <div className="flex flex-col h-full">
+                <nav className="flex flex-col items-start gap-4 p-6">
+                  {navLinks.map(({ href, label }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        'text-xl font-medium transition-colors hover:text-primary',
+                        pathname === href ? 'text-primary' : 'text-muted-foreground'
+                      )}
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                  {isAuthenticated && (
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        'text-xl font-medium transition-colors hover:text-primary',
+                        pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
+                      )}
+                    >
+                      Dashboard
+                    </Link>
+                  )}
+                </nav>
+                <div className="mt-auto flex flex-col gap-4 p-6">
+                  <Separator />
+                  <div onClick={() => setIsMobileMenuOpen(false)}>
+                    {isAuthenticated ? <WalletConnect /> : <RegisterDialog onRegister={() => setIsMobileMenuOpen(false)} />}
+                  </div>
                 </div>
               </div>
-            </div>
-          </SheetContent>
-        </Sheet>
+            </SheetContent>
+          </Sheet>
+          <div className="hidden md:flex">
+             <Logo />
+          </div>
+        </div>
         
-        <div className="flex flex-1 items-center justify-between md:justify-end">
+        <div className="flex flex-1 items-center justify-end">
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center space-x-6 text-base font-medium">
               {navLinks.map(({ href, label }) => (
@@ -122,7 +124,7 @@ export default function Navbar() {
                 </Link>
               )}
             </nav>
-            <div className="hidden md:flex items-center gap-4 ml-6">
+            <div className="flex items-center gap-4 md:ml-6">
               {isAuthenticated ? (
                 <>
                     <WalletConnect />
