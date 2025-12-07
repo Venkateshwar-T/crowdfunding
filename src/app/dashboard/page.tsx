@@ -171,9 +171,8 @@ export default function DashboardPage() {
 
     return (
         <Tabs defaultValue={defaultTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
                 <TabsTrigger value="my-campaigns">My Campaigns</TabsTrigger>
-                <TabsTrigger value="my-contributions">My Contributions</TabsTrigger>
                 <TabsTrigger value="history">History</TabsTrigger>
                 <TabsTrigger value="identity">Identity (FDC)</TabsTrigger>
                 <TabsTrigger value="smart-account">Smart Account</TabsTrigger>
@@ -201,32 +200,6 @@ export default function DashboardPage() {
                                     <CardContent>
                                         <ProgressBar current={Number(campaign.current)} goal={Number(campaign.goal)} />
                                     </CardContent>
-                                </Card>
-                            ))
-                        )}
-                    </CardContent>
-                </Card>
-            </TabsContent>
-
-            <TabsContent value="my-contributions" className="mt-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>My Contributions</CardTitle>
-                        <CardDescription>Projects you have backed on-chain.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {isLoading ? <Loader2 className="animate-spin h-8 w-8 mx-auto" /> : myContributions.length === 0 ? (
-                            <p className="text-muted-foreground text-center py-8">No contributions found.</p>
-                        ) : (
-                            myContributions.map((contribution, idx) => (
-                                <Card key={`${contribution.id}-${idx}`}>
-                                    <CardHeader className="flex flex-row items-center justify-between">
-                                        <CardTitle className="text-lg">{contribution.campaignTitle}</CardTitle>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-lg font-bold">{contribution.amount}</span>
-                                            <Badge variant="outline">{contribution.asset}</Badge>
-                                        </div>
-                                    </CardHeader>
                                 </Card>
                             ))
                         )}
