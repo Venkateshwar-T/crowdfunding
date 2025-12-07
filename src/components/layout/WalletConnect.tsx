@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, Wallet, Landmark } from 'lucide-react';
+import { LogOut, Wallet, Landmark, User as UserIcon, Mail } from 'lucide-react';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { FAssetIcon } from '../shared/FAssetIcon';
@@ -79,15 +79,24 @@ export function WalletConnect() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72">
-        <DropdownMenuLabel>My Wallet</DropdownMenuLabel>
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
          <DropdownMenuItem disabled>
+            <UserIcon className="mr-2 h-4 w-4" />
             <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground">Google Account</span>
+                <span className="text-xs text-muted-foreground">Username</span>
+                <span className="font-mono text-sm truncate">{user.displayName || 'Anonymous'}</span>
+            </div>
+        </DropdownMenuItem>
+         <DropdownMenuItem disabled>
+            <Mail className="mr-2 h-4 w-4" />
+            <div className="flex flex-col">
+                <span className="text-xs text-muted-foreground">Email</span>
                 <span className="font-mono text-sm truncate">{user.email}</span>
             </div>
         </DropdownMenuItem>
         <DropdownMenuItem disabled>
+            <Wallet className="mr-2 h-4 w-4" />
             <div className="flex flex-col">
                 <span className="text-xs text-muted-foreground">Connected to {connectorName}</span>
                 <span className="font-mono text-sm">{shortAddress}</span>

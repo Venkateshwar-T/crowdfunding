@@ -20,14 +20,7 @@ import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
 import CampaignABI from '@/lib/abi/Campaign.json';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
-
-// --- CONFIGURATION ---
-const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
-const MOCK_TOKENS: Record<string, string> = {
-    'F-BTC': "0x76E4b5DDD42BD84161f7f298D35723FbC576e861",
-    'F-XRP': "0xBAf7dE33f98B018055EA5aCDfBDcA9be11780d06",
-    'F-USDC': "0x94f41643DB84e373491aE358e24278a562307E30",
-};
+import { FACTORY_ADDRESS, MOCK_TOKENS } from '@/lib/constants';
 
 const unlockedFeatures = [
     {

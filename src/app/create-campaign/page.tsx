@@ -27,16 +27,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-
-const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
-
-const MOCK_TOKENS: Record<string, string> = {
-    'F-BTC': "0x76E4b5DDD42BD84161f7f298D35723FbC576e861",
-    'F-XRP': "0xBAf7dE33f98B018055EA5aCDfBDcA9be11780d06",
-    'F-DOGE': "0x0000000000000000000000000000000000000000",
-    'F-LTC': "0x0000000000000000000000000000000000000000",
-    'F-USDC': "0x94f41643DB84e373491aE358e24278a562307E30",
-};
+import { FACTORY_ADDRESS, MOCK_TOKENS } from '@/lib/constants';
 
 const milestoneSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),

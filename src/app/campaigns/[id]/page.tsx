@@ -36,16 +36,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-
-// --- CONFIGURATION ---
-// MUST MATCH YOUR CREATE PAGE CONFIG
-const MOCK_TOKENS: Record<string, string> = {
-    'F-BTC': "0x76E4b5DDD42BD84161f7f298D35723FbC576e861", // Replace with your REAL addresses
-    'F-XRP': "0xBAf7dE33f98B018055EA5aCDfBDcA9be11780d06",
-    'F-DOGE': "0x0000000000000000000000000000000000000000",
-    'F-LTC': "0x0000000000000000000000000000000000000000",
-    'F-USDC': "0x94f41643DB84e373491aE358e24278a562307E30",
-};
+import { FACTORY_ADDRESS, MOCK_TOKENS } from '@/lib/constants';
 
 // Minimal ERC20 ABI for Approval
 const ERC20_ABI = [

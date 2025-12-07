@@ -17,9 +17,7 @@ import { formatEther, type Abi } from 'viem';
 import FactoryABI from '@/lib/abi/CrowdfundingFactory.json';
 import CampaignABI from '@/lib/abi/Campaign.json';
 import { type Campaign } from '@/lib/types';
-
-// --- REPLACE WITH YOUR REAL FACTORY ADDRESS ---
-const FACTORY_ADDRESS = "0x136Fc40F09eB9f7a51302558D6f290176Af9bB0d"; 
+import { FACTORY_ADDRESS, MOCK_TOKENS } from '@/lib/constants';
 
 const categories = ['All', 'Tech', 'Medical', 'DeFi', 'Gaming', 'Other'];
 const statuses = ['All', 'active', 'successful', 'expired'];
