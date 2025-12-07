@@ -89,6 +89,16 @@ async function getFirebaseUserByAddress(address: string): Promise<FirebaseUser |
     });
 }
 
+function isValidImageUrl(url: string) {
+    const allowedHosts = ['placehold.co', 'images.unsplash.com', 'picsum.photos'];
+    try {
+        const urlObj = new URL(url);
+        return allowedHosts.includes(urlObj.hostname);
+    } catch (e) {
+        return false;
+    }
+}
+
 
 export default function CampaignDetailPage() {
   const params = useParams();
@@ -148,12 +158,16 @@ export default function CampaignDetailPage() {
         }));
 
         const creatorAddress = creatorRes.result as string;
+        
+        const imageUrlFromChain = (imgRes?.result as string) || '';
+        const finalImageUrl = isValidImageUrl(imageUrlFromChain) ? imageUrlFromChain : "https://placehold.co/600x400";
+
 
         setCampaign({
             id: id,
             title: titleRes.result as string,
             description: (descRes?.result as string) || "No description.",
-            imageUrl: (imgRes?.result as string) || "https://placehold.co/600x400",
+            imageUrl: finalImageUrl,
             imageHint: "blockchain project",
             category: (catRes?.result as any) || "Tech",
             currentFunding: Number(formatEther((currRes?.result as bigint) || 0n)),
@@ -248,7 +262,7 @@ export default function CampaignDetailPage() {
             args: [assetAddress, amountWei]
         });
 
-        toast({ title: "Success!", description: "Contribution sent to the blockchain.", className: "bg-green-100 border-green-500 text-green-900" });
+        toast({ title: "Success!", description: "Contribution sent to the blockchain.", variant: "default" });
         setAmount('');
         
     } catch (e: any) {
@@ -405,3 +419,5 @@ export default function CampaignDetailPage() {
     </div>
   );
 }
+
+    
