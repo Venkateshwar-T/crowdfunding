@@ -4,12 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy, Loader2, Rocket, Zap, Users, Package, CheckCircle, AlertTriangle, RefreshCw } from "lucide-react";
+import { Loader2, CheckCircle } from "lucide-react";
 import { ProgressBar } from "@/components/shared/ProgressBar";
 import { FileUpload } from "@/components/shared/FileUpload";
 
@@ -32,9 +31,7 @@ export default function DashboardPage() {
     const { toast } = useToast();
     const [myCampaigns, setMyCampaigns] = useState<any[]>([]);
     const [myContributions, setMyContributions] = useState<Contribution[]>([]);
-    const [smartAccountAddress, setSmartAccountAddress] = useState<string | null>(null);
-    const [isDeploying, setIsDeploying] = useState(false);
-
+    
     const searchParams = useSearchParams();
     const defaultTab = searchParams.get('tab') || 'my-campaigns';
 
@@ -140,24 +137,6 @@ export default function DashboardPage() {
         }
     }, [results, userAddress, campaignAddresses]);
 
-    const handleDeploySmartAccount = () => {
-        setIsDeploying(true);
-        toast({
-            title: "Simulating Deployment",
-            description: "Deploying your smart account to the Flare Testnet..."
-        });
-        setTimeout(() => {
-            const mockAddress = `0x${[...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')}`;
-            setSmartAccountAddress(mockAddress);
-            setIsDeploying(false);
-            toast({
-                title: "Smart Account Deployed! ✨",
-                description: `Address: ${mockAddress.slice(0,10)}...`,
-                className: "bg-green-100 border-green-500 text-green-900"
-            });
-        }, 3000);
-    }
-
     if (!isConnected) {
         return (
             <div className="flex flex-col items-center justify-center h-[50vh]">
@@ -171,11 +150,10 @@ export default function DashboardPage() {
 
     return (
         <Tabs defaultValue={defaultTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 h-auto">
                 <TabsTrigger value="my-campaigns">My Campaigns</TabsTrigger>
                 <TabsTrigger value="history">History</TabsTrigger>
                 <TabsTrigger value="identity">Identity (FDC)</TabsTrigger>
-                <TabsTrigger value="smart-account">Smart Account</TabsTrigger>
             </TabsList>
 
             <TabsContent value="my-campaigns" className="mt-6">
@@ -273,36 +251,6 @@ export default function DashboardPage() {
                             </Button>
                         )}
                     </CardFooter>
-                </Card>
-            </TabsContent>
-
-            <TabsContent value="smart-account" className="mt-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Smart Account Manager</CardTitle>
-                        <CardDescription>Your connected wallet is your controller.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <Label>Controller Address</Label>
-                            <div className="flex items-center gap-2 mt-1">
-                                <Input value={userAddress || ''} readOnly />
-                                <Button variant="outline" size="icon" onClick={() => navigator.clipboard.writeText(userAddress || '')}><Copy className="h-4 w-4" /></Button>
-                            </div>
-                        </div>
-                        {/* ... Keep Smart Account Unlock UI ... */}
-                         <div className="p-4 bg-muted rounded-lg">
-                            <h4 className="font-semibold mb-2 flex items-center gap-2">
-                                <RefreshCw className="h-4 w-4" /> Assets on Flare
-                            </h4>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>C2FLR (Gas):</div>
-                                <div className="font-mono">Active</div>
-                                <div>F-BTC (Mock):</div>
-                                <div className="font-mono">{MOCK_TOKENS['F-BTC']?.slice(0,6)}...</div>
-                            </div>
-                        </div>
-                    </CardContent>
                 </Card>
             </TabsContent>
         </Tabs>

@@ -1,6 +1,6 @@
 import { GlassContainer } from "@/components/shared/GlassContainer";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Cpu, Droplets, Fingerprint, Users } from "lucide-react";
+import { Cpu, Droplets, Fingerprint } from "lucide-react";
 import Image from "next/image";
 
 const flareFeatures = [
@@ -22,12 +22,6 @@ const flareFeatures = [
         title: "Flare Time Series Oracle (FTSO)",
         description: "The FTSO is a highly decentralized oracle that provides reliable, real-time price data to the Flare Network. It's crucial for CrowdFund to accurately calculate funding goals and contribution values across different assets. By sourcing data from a wide range of providers, the FTSO resists manipulation and ensures fair market prices.",
     },
-    {
-        id: "flare-smart-accounts",
-        icon: <Users className="h-10 w-10 text-primary" />,
-        title: "Flare Smart Accounts",
-        description: "Flare enhances standard Externally Owned Accounts (EOAs) with smart contract capabilities. Each campaign on CrowdFund can be managed by a dedicated smart account, allowing for automated, rule-based fund distribution, milestone-based payments, and decentralized governance. It makes every account smarter and more powerful.",
-    }
 ];
 
 

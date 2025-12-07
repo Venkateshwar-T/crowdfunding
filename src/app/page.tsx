@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Cpu, Droplets, Fingerprint, Users } from 'lucide-react';
+import { ArrowRight, Cpu, Droplets, Fingerprint } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
@@ -22,11 +22,6 @@ const featureCards = [
     icon: <Cpu className="h-8 w-8 text-primary" />,
     title: 'FTSO',
     description: 'Access reliable, real-time price data for all assets, ensuring fair and accurate funding calculations.',
-  },
-  {
-    icon: <Users className="h-8 w-8 text-primary" />,
-    title: 'Smart Accounts',
-    description: 'Each campaign gets a smart account for decentralized, rule-based fund management.',
   },
 ];
 
@@ -75,7 +70,7 @@ export default function Home() {
               We leverage the full power of the Flare Network to provide a secure, transparent, and versatile crowdfunding experience.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featureCards.map((feature) => (
               <GlassContainer key={feature.title}>
                 <div className="p-6">
