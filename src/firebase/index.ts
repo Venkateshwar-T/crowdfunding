@@ -25,16 +25,6 @@ function initializeFirebase() {
   return { firebaseApp, auth, firestore, storage };
 }
 
-export { 
-    initializeFirebase, 
-    useAuth, 
-    useFirebaseApp, 
-    useFirestore, 
-    useStorage,
-    useUser 
-};
-
-export { FirebaseAuthProvider, FirebaseProvider } from './provider';
-
-import { useAuth, useFirebaseApp, useFirestore, useStorage } from './provider';
-import { useUser } from './auth/use-user';
+export { initializeFirebase };
+export { useAuth, useFirebaseApp, useFirestore, useStorage, FirebaseAuthProvider, FirebaseProvider } from './provider';
+export { useUser } from './auth/use-user';
