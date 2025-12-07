@@ -112,7 +112,7 @@ export function RegisterDialog({ onRegister, children }: RegisterDialogProps) {
                 </div>
                  <Button 
                     onClick={handleConnectWallet} 
-                    disabled={isStep2Complete}
+                    disabled={!isStep1Complete || isStep2Complete}
                     variant={isStep2Complete ? "secondary" : "default"}
                     className='w-[120px]'
                 >
